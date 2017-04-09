@@ -40,3 +40,6 @@ export THIRDPARTY_BUILD=/thirdparty_build
 "$(dirname "$0")"/build_and_install_deps.sh
 rm -f /tmp/*.dep
 BUILD_DISTINCT=1 "$(dirname "$0")"/build_and_install_deps.sh
+
+# Cleanup stuff from build.
+rm -rf /tmp/*
