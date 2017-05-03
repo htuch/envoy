@@ -1,0 +1,158 @@
+// This is heavily derived from
+// https://lyft.github.io/envoy/docs/configuration/listeners/listeners.html
+// The v2 gRPC API differences are tagged with [V2-API-DIFF].
+
+syntax = "proto3";
+
+import "node.proto";
+
+service ListenerDiscoveryService {
+  rpc StreamListeners(ListenerDiscoveryRequest)
+      returns (stream ListenerDiscoverResponse) {
+  }
+}
+
+message ListenerDiscoveryRequest {
+  Node node = 1;
+}
+
+message ListenerDiscoverResponse {
+  repeated Listener listeners = 1;
+}
+
+// [V2-API-DIFF] Addresses now have .proto structure and are extensible beyond
+// standard URL string format, e.g. to support SRV queries as in
+// https://github.com/lyft/envoy/pull/517.
+message Address {
+  enum Protocol {
+    IP = 0;
+    // Unix Domain Sockets.
+    PIPE = 1;
+  }
+  Protocol proto = 1;
+  string address = 2;
+  uint32 port = 3;
+}
+
+message DataSource {
+  oneof specifier {
+    string file = 1;
+    string inline = 2;
+  }
+}
+
+// SSL certs can be loaded from file or delivered inline [V2-API-DIFF]. Individual fields may
+// be loaded from either.
+message SslCertificate {
+  DataSource cert_chain = 1;
+  DataSource encrypted_private_key = 2;
+  DataSource ocsp_staple = 3;
+  repeated DataSource signed_certificate_timestamp = 4;
+}
+
+message ClientSslContext {
+  // SSL certificate data containing certificate authority certificates to use
+  // in verifying a presented client side certificate. If not specified and a
+  // client certificate is presented it will not be verified.
+  // TODO(htuch): Most of SslCertificate fields are not used here, do we want a
+  // simpler inline/file message for the CA cert here?
+  SslCertificate ca_cert = 1;
+
+  // If specified, Envoy will verify (pin) the hash of the presented client side
+  // certificate.
+  string verify_certificate_hash = 2;
+
+  // An optional list of subject alt names. If specified, Envoy will verify that
+  // the client certificate’s subject alt name matches one of the specified
+  // values.
+  repeated string verify_subject_alt_name = 3;
+}
+
+// [V2-API-DIFF] This has been reworked to support alternative modes of
+// certificate/key delivery, for consistency with the upstream SSL context and
+// to segregate the client/server aspects of the SSL context.
+message SslContext {
+  // Multiple SSL certificates can be associated with a listener for SNI
+  // support [V2-API-DIFF].
+  repeated SslCertificate ssl_certificates = 1;
+
+  ClientSslContext client_ssl_context = 2;
+
+  enum AlpnProtocol {
+    HTTP1 = 0;
+    HTTP2 = 1;
+  }
+  // Supplies the list of ALPN protocols that the listener should expose.
+  repeated AlpnProtocol alpn_protocols = 3;
+
+  // An alternate ALPN protocol list that can be switched to via runtime. This
+  // is useful for example to disable HTTP/2 without having to deploy a new
+  // configuration.
+  repeated AlpnProtocol alt_alpn_protocols = 4;
+
+  enum TLSProtocol {
+    TLS_AUTO = 0;
+    TLSv1_0 = 1;
+    TLSv1_1 = 2;
+    TLSv1_2 = 3;
+    TLSv1_3 = 4;
+  }
+  // Allowed TLS protocols.
+  TLSProtocol tls_minimum_protocol_version = 5;
+  TLSProtocol tls_maximum_protocol_version = 6;
+
+  // If specified, the TLS listener will only support the specified cipher list.
+  repeated string cipher_suites = 7;
+
+  // If specified, the TLS connection will only support the specified ECDH
+  // curves. If not specified, the default curves (X25519, P-256) will be used.
+  repeated string ecdh_curves = 8;
+}
+
+message Filter {
+  // FIXME: Provide .proto variants of existing API. The key to binding
+  // RDS/LDS together is a field in the HTTP connection manager filter 'rds'
+  // entry, 'route_config_name',
+  // https://lyft.github.io/envoy/docs/configuration/http_conn_man/rds.html.
+  // This associates a given listener with some route table and RDS query.
+}
+
+message Listener {
+  // The address that the listener should listen on.
+  Address address = 1;
+
+  // The TLS context configuration for a TLS listener. If no TLS context block
+  // is defined, the listener is a plain text listener.
+  SslContext ssl_context = 2;
+
+  // Whether the listener should not bind to the port. A listener that doesn’t bind
+  // can only receive connections redirected from other listeners that set
+  // use_origin_dst parameter to true. Default is false [V2-API-DIFF].
+  bool no_bind_to_port = 3;
+
+  // Whether the listener should expect a PROXY protocol V1 header on new
+  // connections. If this option is enabled, the listener will assume that that
+  // remote address of the connection is the one specified in the header. Some
+  // load balancers including the AWS ELB support this option. If the option is
+  // absent or set to false, Envoy will use the physical peer address of the
+  // connection as the remote address.
+  bool use_proxy_proto = 4;
+
+  // If a connection is redirected using iptables, the port on which the proxy
+  // receives it might be different from the original destination port. When
+  // this flag is set to true, the listener hands off redirected connections to
+  // the listener associated with the original destination port. If there is no
+  // listener associated with the original destination port, the connection is
+  // handled by the listener that receives it. Default is false.
+  bool use_original_dst = 5;
+
+  // Soft limit on size of the listener’s new connection read and write buffers.
+  // If unspecified, an implementation defined default is applied (1MiB).
+  uint32 per_connection_buffer_limit_bytes = 6;
+
+  // A list of individual network filters that make up the filter chain for
+  // connections established with the listener. Order matters as the filters are
+  // processed sequentially as connection events happen.
+  // Note: If the filter list is empty, the connection will close by default.
+  repeated Filter filters = 7;
+}
