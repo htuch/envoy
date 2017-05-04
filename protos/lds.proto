@@ -54,9 +54,7 @@ message ClientSslContext {
   // SSL certificate data containing certificate authority certificates to use
   // in verifying a presented client side certificate. If not specified and a
   // client certificate is presented it will not be verified.
-  // TODO(htuch): Most of SslCertificate fields are not used here, do we want a
-  // simpler inline/file message for the CA cert here?
-  SslCertificate ca_cert = 1;
+  DataSource ca_cert = 1;
 
   // If specified, Envoy will verify (pin) the hash of the presented client side
   // certificate.
@@ -85,11 +83,6 @@ message SslContext {
   // Supplies the list of ALPN protocols that the listener should expose.
   repeated AlpnProtocol alpn_protocols = 3;
 
-  // An alternate ALPN protocol list that can be switched to via runtime. This
-  // is useful for example to disable HTTP/2 without having to deploy a new
-  // configuration.
-  repeated AlpnProtocol alt_alpn_protocols = 4;
-
   enum TLSProtocol {
     TLS_AUTO = 0;
     TLSv1_0 = 1;
@@ -98,15 +91,15 @@ message SslContext {
     TLSv1_3 = 4;
   }
   // Allowed TLS protocols.
-  TLSProtocol tls_minimum_protocol_version = 5;
-  TLSProtocol tls_maximum_protocol_version = 6;
+  TLSProtocol tls_minimum_protocol_version = 4;
+  TLSProtocol tls_maximum_protocol_version = 5;
 
   // If specified, the TLS listener will only support the specified cipher list.
-  repeated string cipher_suites = 7;
+  repeated string cipher_suites = 6;
 
   // If specified, the TLS connection will only support the specified ECDH
   // curves. If not specified, the default curves (X25519, P-256) will be used.
-  repeated string ecdh_curves = 8;
+  repeated string ecdh_curves = 7;
 }
 
 message Filter {
