@@ -109,11 +109,19 @@ public:
 typedef std::unique_ptr<ClusterManager> ClusterManagerPtr;
 
 /**
- * Global configuration for any SDS clusters.
+ * Global configuration for any SDS/EDS clusters.
  */
-struct SdsConfig {
-  std::string sds_cluster_name_;
+struct DiscoveryConfig {
+  std::string cluster_name_;
+  // Only relevant for SDS and REST EDS.
   std::chrono::milliseconds refresh_delay_;
+};
+
+/**
+ * Global configuration for EDS clusters.
+ */
+struct EdsConfig {
+  std::string eds_cluster_name_;
 };
 
 /**
@@ -165,7 +173,7 @@ public:
    * Allocate a cluster from configuration JSON.
    */
   virtual ClusterPtr clusterFromJson(const Json::Object& cluster, ClusterManager& cm,
-                                     const Optional<SdsConfig>& sds_config,
+                                     const Optional<DiscoveryConfig>& sds_config,
                                      Outlier::EventLoggerSharedPtr outlier_event_logger) PURE;
 
   /**

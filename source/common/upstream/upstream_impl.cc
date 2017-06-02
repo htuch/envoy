@@ -107,7 +107,7 @@ ClusterPtr ClusterImplBase::create(const Json::Object& cluster, ClusterManager& 
                                    Ssl::ContextManager& ssl_context_manager,
                                    Runtime::Loader& runtime, Runtime::RandomGenerator& random,
                                    Event::Dispatcher& dispatcher,
-                                   const Optional<SdsConfig>& sds_config,
+                                   const Optional<DiscoveryConfig>& discovery_config,
                                    const LocalInfo::LocalInfo& local_info,
                                    Outlier::EventLoggerSharedPtr outlier_event_logger) {
 
@@ -123,14 +123,21 @@ ClusterPtr ClusterImplBase::create(const Json::Object& cluster, ClusterManager& 
   } else if (string_type == "logical_dns") {
     new_cluster.reset(new LogicalDnsCluster(cluster, runtime, stats, ssl_context_manager,
                                             dns_resolver, tls, dispatcher));
-  } else {
-    ASSERT(string_type == "sds");
-    if (!sds_config.valid()) {
+  } else if (string_type == "sds") {
+    if (!discovery_config.valid()) {
       throw EnvoyException("cannot create an sds cluster without an sds config");
     }
 
     new_cluster.reset(new SdsClusterImpl(cluster, runtime, stats, ssl_context_manager,
-                                         sds_config.value(), local_info, cm, dispatcher, random));
+                                         discovery_config.value(), local_info, cm, dispatcher, random));
+  } else {
+    ASSERT(string_type == "eds");
+    if (!discovery_config.valid()) {
+      throw EnvoyException("cannot create an eds cluster without an eds config");
+    }
+
+    new_cluster.reset(new EdsClusterImpl(cluster, runtime, stats, ssl_context_manager,
+                                         discovery_config.value(), local_info, cm, dispatcher, random));
   }
 
   if (cluster.hasObject("health_check")) {

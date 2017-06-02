@@ -71,9 +71,13 @@ Http::MessagePtr Common::prepareHeaders(const std::string& upstream_cluster,
   return message;
 }
 
-void Common::checkForHeaderOnlyError(Http::Message& http_response) {
+void Common::validateHeaders(const Http::HeaderMap& headers) {
+  if (Http::Utility::getResponseStatus(headers) != enumToInt(Http::Code::OK)) {
+    throw Exception(Optional<uint64_t>(), "non-200 response code");
+  }
+
   // First check for grpc-status in headers. If it is here, we have an error.
-  const Http::HeaderEntry* grpc_status_header = http_response.headers().GrpcStatus();
+  const Http::HeaderEntry* grpc_status_header = headers.GrpcStatus();
   if (!grpc_status_header) {
     return;
   }
@@ -83,24 +87,14 @@ void Common::checkForHeaderOnlyError(Http::Message& http_response) {
     throw Exception(Optional<uint64_t>(), "bad grpc-status header");
   }
 
-  const Http::HeaderEntry* grpc_status_message = http_response.headers().GrpcMessage();
+  const Http::HeaderEntry* grpc_status_message = headers.GrpcMessage();
   throw Exception(grpc_status_code,
                   grpc_status_message ? grpc_status_message->value().c_str() : EMPTY_STRING);
+
 }
 
-void Common::validateResponse(Http::Message& http_response) {
-  if (Http::Utility::getResponseStatus(http_response.headers()) != enumToInt(Http::Code::OK)) {
-    throw Exception(Optional<uint64_t>(), "non-200 response code");
-  }
-
-  checkForHeaderOnlyError(http_response);
-
-  // Check for existence of trailers.
-  if (!http_response.trailers()) {
-    throw Exception(Optional<uint64_t>(), "no response trailers");
-  }
-
-  const Http::HeaderEntry* grpc_status_header = http_response.trailers()->GrpcStatus();
+void Common::validateTrailers(const Http::HeaderMap& trailers) {
+  const Http::HeaderEntry* grpc_status_header = trailers.GrpcStatus();
   uint64_t grpc_status_code;
   if (!grpc_status_header ||
       !StringUtil::atoul(grpc_status_header->value().c_str(), grpc_status_code)) {
@@ -108,10 +102,22 @@ void Common::validateResponse(Http::Message& http_response) {
   }
 
   if (grpc_status_code != 0) {
-    const Http::HeaderEntry* grpc_status_message = http_response.trailers()->GrpcMessage();
+    const Http::HeaderEntry* grpc_status_message = trailers.GrpcMessage();
     throw Exception(grpc_status_code,
                     grpc_status_message ? grpc_status_message->value().c_str() : EMPTY_STRING);
   }
+
+}
+
+void Common::validateResponse(Http::Message& http_response) {
+  validateHeaders(http_response.headers());
+
+  // Check for existence of trailers.
+  if (!http_response.trailers()) {
+    throw Exception(Optional<uint64_t>(), "no response trailers");
+  }
+
+  validateTrailers(*http_response.trailers());
 }
 
 } // Grpc

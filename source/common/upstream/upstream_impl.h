@@ -227,7 +227,7 @@ public:
                            ThreadLocal::Instance& tls, Network::DnsResolver& dns_resolver,
                            Ssl::ContextManager& ssl_context_manager, Runtime::Loader& runtime,
                            Runtime::RandomGenerator& random, Event::Dispatcher& dispatcher,
-                           const Optional<SdsConfig>& sds_config,
+                           const Optional<DiscoveryConfig>& sds_config,
                            const LocalInfo::LocalInfo& local_info,
                            Outlier::EventLoggerSharedPtr outlier_event_logger);
 

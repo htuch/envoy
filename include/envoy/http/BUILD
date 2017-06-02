@@ -86,3 +86,8 @@ envoy_cc_library(
     name = "protocol_interface",
     hdrs = ["protocol.h"],
 )
+
+envoy_cc_library(
+    name = "subscription_api_client_interface",
+    hdrs = ["subscription_api_client.h"],
+)

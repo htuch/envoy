@@ -204,6 +204,17 @@ envoy_cc_library(
 )
 
 envoy_cc_library(
+    name = "rest_subscription_client_lib",
+    srcs = ["rest_subscription_client.cc"],
+    hdrs = ["rest_subscription_client.h"],
+    external_deps = ["protobuf"],
+    deps = [
+        ":rest_api_fetcher_lib",
+        "//include/envoy/http:subscription_api_client_interface",
+    ],
+)
+
+envoy_cc_library(
     name = "user_agent_lib",
     srcs = ["user_agent.cc"],
     hdrs = ["user_agent.h"],

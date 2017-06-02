@@ -953,6 +953,20 @@ const std::string Json::Schema::CLUSTER_MANAGER_SCHEMA(R"EOF(
         "required" : ["cluster", "refresh_delay_ms"],
         "additionalProperties" : false
       },
+      "eds" : {
+        "type" : "object",
+        "properties" : {
+          "cluster" : {"type" : "object"},
+          "grpc" : {"type" : "boolean"},
+          "refresh_delay_ms" : {
+            "type" : "integer",
+            "minimum" : 0,
+            "exclusiveMinimum" : true
+          }
+        },
+        "required" : ["cluster", "grpc"],
+        "additionalProperties" : false
+      },
       "cds" : {
         "type" : "object",
         "properties" : {

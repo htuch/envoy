@@ -36,8 +36,8 @@ name
 
 type
   *(required, string)* The :ref:`service discovery type <arch_overview_service_discovery_types>` to
-  use for resolving the cluster. Possible options are *static*, *strict_dns*, *logical_dns*, and
-  *sds*.
+  use for resolving the cluster. Possible options are *static*, *strict_dns*, *logical_dns*, *sds* and
+  *eds*.
 
 connect_timeout_ms
   *(required, integer)* The timeout for new network connections to hosts in the cluster specified
@@ -95,9 +95,9 @@ hosts
 .. _config_cluster_manager_cluster_service_name:
 
 service_name
-  *(sometimes required, string)* This parameter is required if the service discovery type is *sds*.
-  It will be passed to the :ref:`SDS API <config_cluster_manager_sds_api>` when fetching cluster
-  members.
+  *(sometimes required, string)* This parameter is required if the service discovery type is *sds*
+  or *eds*. It will be passed to the :ref:`SDS API <config_cluster_manager_sds_api>` when fetching cluster
+  members when the discovery type is *sds*. *eds* clusters are an experimental v2 API feature.
 
 :ref:`health_check <config_cluster_manager_cluster_hc>`
   *(optional, object)* Optional :ref:`active health checking <arch_overview_health_checking>`

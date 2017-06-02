@@ -9,6 +9,18 @@ load(
 envoy_package()
 
 envoy_cc_library(
+    name = "async_client_lib",
+    srcs = ["async_client_impl.cc"],
+    hdrs = ["async_client_impl.h"],
+    deps = [
+        ":codec_lib",
+        ":common_lib",
+        "//include/envoy/grpc:async_client_interface",
+        "//source/common/http:async_client_lib",
+    ],
+)
+
+envoy_cc_library(
     name = "codec_lib",
     srcs = ["codec.cc"],
     hdrs = ["codec.h"],
@@ -57,6 +69,18 @@ envoy_cc_library(
 )
 
 envoy_cc_library(
+    name = "grpc_subscription_client_lib",
+    srcs = ["grpc_subscription_client.cc"],
+    hdrs = ["grpc_subscription_client.h"],
+    deps = [
+        ":codec_lib",
+        ":common_lib",
+        "//include/envoy/http:subscription_api_client_interface",
+        "//source/common/http:async_client_lib",
+    ],
+)
+
+envoy_cc_library(
     name = "grpc_web_filter_lib",
     srcs = ["grpc_web_filter.cc"],
     hdrs = ["grpc_web_filter.h"],
@@ -82,6 +106,20 @@ envoy_cc_library(
         "//source/common/common:enum_to_int",
         "//source/common/common:utility_lib",
         "//source/common/http:headers_lib",
+        "//source/common/http:message_lib",
+        "//source/common/http:utility_lib",
+    ],
+)
+
+envoy_cc_library(
+    name = "stream_api_fetcher_lib",
+    srcs = ["stream_api_fetcher.cc"],
+    hdrs = ["stream_api_fetcher.h"],
+    deps = [
+        "//include/envoy/event:dispatcher_interface",
+        "//include/envoy/runtime:runtime_interface",
+        "//include/envoy/upstream:cluster_manager_interface",
+        "//source/common/common:enum_to_int",
         "//source/common/http:message_lib",
         "//source/common/http:utility_lib",
     ],
