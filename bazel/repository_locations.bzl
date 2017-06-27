@@ -1,4 +1,5 @@
 REPO_LOCATIONS = {
+    "bazel_tools": "https://github.com/bazelbuild/bazel.git",
     "jinja2": "https://github.com/pallets/jinja.git",
     "grpc_transcoding": "https://github.com/grpc-ecosystem/grpc-httpjson-transcoding.git",
     "envoy_api": "https://github.com/lyft/envoy-api.git",
