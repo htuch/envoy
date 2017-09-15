@@ -136,7 +136,9 @@ void GrpcMuxImpl::onReceiveMessage(std::unique_ptr<envoy::api::v2::DiscoveryResp
       }
       const std::string resource_name = Utility::resourceName(resource);
       if (resource_name.empty()) {
-        throw EnvoyException("Unknown type URL or empty resource name");
+        throw EnvoyException(
+            fmt::format("Unknown type URL or empty resource name in DiscoveryReseponse {}",
+                        message->DebugString()));
       }
       resources.emplace(resource_name, resource);
     }
