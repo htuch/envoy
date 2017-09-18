@@ -96,6 +96,7 @@ void RdsRouteConfigProviderImpl::onConfigUpdate(const ResourceVector& resources)
   if (resources.empty()) {
     ENVOY_LOG(debug, "Missing RouteConfiguration for {} in onConfigUpdate()", route_config_name_);
     stats_.update_empty_.inc();
+    runInitializeCallbackIfAny();
     return;
   }
   if (resources.size() != 1) {
