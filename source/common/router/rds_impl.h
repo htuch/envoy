@@ -107,13 +107,7 @@ public:
   void onConfigUpdate(const ResourceVector& resources) override;
   void onConfigUpdateFailed(const EnvoyException* e) override;
 
-private:
-  struct ThreadLocalConfig : public ThreadLocal::ThreadLocalObject {
-    ThreadLocalConfig(ConfigConstSharedPtr initial_config) : config_(initial_config) {}
-
-    ConfigConstSharedPtr config_;
-  };
-
+protected:
   RdsRouteConfigProviderImpl(const envoy::api::v2::filter::Rds& rds,
                              const std::string& manager_identifier, Runtime::Loader& runtime,
                              Upstream::ClusterManager& cm, Event::Dispatcher& dispatcher,
@@ -121,6 +115,14 @@ private:
                              const LocalInfo::LocalInfo& local_info, Stats::Scope& scope,
                              const std::string& stat_prefix, ThreadLocal::SlotAllocator& tls,
                              RouteConfigProviderManagerImpl& route_config_provider_manager);
+
+
+private:
+  struct ThreadLocalConfig : public ThreadLocal::ThreadLocalObject {
+    ThreadLocalConfig(ConfigConstSharedPtr initial_config) : config_(initial_config) {}
+
+    ConfigConstSharedPtr config_;
+  };
 
   void registerInitTarget(Init::Manager& init_manager);
   void runInitializeCallbackIfAny();
