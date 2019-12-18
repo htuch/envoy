@@ -1,5 +1,7 @@
 #include "envoy/config/overload/v2alpha/overload.pb.h"
 
+#define ASSERT(x) static_cast<void>(x)
+
 using envoy::config::overload::v2alpha::Trigger;
 
 class ThresholdTriggerImpl {
@@ -18,5 +20,6 @@ public:
       break;
     }
     envoy::config::overload::v2alpha::ThresholdTrigger::default_instance();
+    ASSERT(envoy::config::overload::v2alpha::Trigger::kThreshold == Trigger::kThreshold);
   }
 };

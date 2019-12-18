@@ -232,13 +232,13 @@ private:
     if (!source_range) {
       return;
     }
+    // We need to look at the text we're replacing to decide whether we should
+    // use the qualified C++'ified proto name.
+    const bool qualified = getSourceText(*source_range, source_manager).find("::") != std::string::npos;
     // Add corresponding replacement.
-    const clang::SourceLocation start = source_range->getBegin();
-    const clang::SourceLocation end =
-        clang::Lexer::getLocForEndOfToken(source_range->getEnd(), 0, source_manager, lexer_lopt_);
-    const size_t length = source_manager.getFileOffset(end) - source_manager.getFileOffset(start);
+    const clang::CharSourceRange char_source_range = clang::CharSourceRange::getTokenRange(*source_range);
     clang::tooling::Replacement type_replacement(
-        source_manager, start, length, ProtoCxxUtils::protoToCxxType(latest_type_info->type_name_));
+        source_manager, char_source_range, ProtoCxxUtils::protoToCxxType(latest_type_info->type_name_, qualified));
     llvm::Error error = replacements_[type_replacement.getFilePath()].add(type_replacement);
     if (error) {
       std::cerr << "  Replacement insertion error: " << llvm::toString(std::move(error))

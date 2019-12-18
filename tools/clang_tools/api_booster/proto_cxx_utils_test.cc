@@ -15,9 +15,12 @@ TEST(ProtoCxxUtils, CxxToProtoType) {
 
 // Validate proto to C++ type name conversion.
 TEST(ProtoCxxUtils, ProtoToCxxType) {
-  EXPECT_EQ("", ProtoCxxUtils::protoToCxxType(""));
-  EXPECT_EQ("foo", ProtoCxxUtils::protoToCxxType("foo"));
-  EXPECT_EQ("foo::bar", ProtoCxxUtils::protoToCxxType("foo.bar"));
+  EXPECT_EQ("", ProtoCxxUtils::protoToCxxType("", false));
+  EXPECT_EQ("", ProtoCxxUtils::protoToCxxType("", true));
+  EXPECT_EQ("foo", ProtoCxxUtils::protoToCxxType("foo", false));
+  EXPECT_EQ("foo", ProtoCxxUtils::protoToCxxType("foo", true));
+  EXPECT_EQ("bar", ProtoCxxUtils::protoToCxxType("foo.bar", false));
+  EXPECT_EQ("foo::bar", ProtoCxxUtils::protoToCxxType("foo.bar", true));
 }
 
 } // namespace

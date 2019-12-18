@@ -1,5 +1,7 @@
 #include "envoy/config/overload/v3alpha/overload.pb.h"
 
+#define ASSERT(x) static_cast<void>(x)
+
 using envoy::config::overload::v3alpha::Trigger;
 
 class ThresholdTriggerImpl {
@@ -12,11 +14,12 @@ public:
       break;
     }
     switch (config.trigger_oneof_case()) {
-    case envoy::config::overload::v3alpha::Trigger::kThreshold:
+    case Trigger::kThreshold:
       break;
     default:
       break;
     }
     envoy::config::overload::v3alpha::ThresholdTrigger::default_instance();
+    ASSERT(envoy::config::overload::v3alpha::Trigger::kThreshold == Trigger::kThreshold);
   }
 };

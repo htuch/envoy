@@ -36,9 +36,13 @@ public:
 
   // Convert from a protobuf type, e.g. foo.bar.v2, to a C++ type, e.g.
   // foo::bar::v2.
-  static std::string protoToCxxType(const std::string& proto_type_name) {
+  static std::string protoToCxxType(const std::string& proto_type_name, bool qualified) {
     // TODO(htuch): add support for recovering foo::bar::Baz_Blah from foo.bar.Baz.Blah.
-    return std::regex_replace(proto_type_name, std::regex(R"(\.)"), "::");
+    if (qualified) {
+      return std::regex_replace(proto_type_name, std::regex(R"(\.)"), "::");
+    } else {
+      return proto_type_name.substr(proto_type_name.rfind('.') + 1); 
+    }
   }
 };
 
