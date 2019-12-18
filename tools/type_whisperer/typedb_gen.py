@@ -146,6 +146,7 @@ if __name__ == '__main__':
       upgrade_type_desc = TypeDescription()
       upgrade_type_desc.qualified_package = UpgradedType(type_desc.qualified_package)
       upgrade_type_desc.proto_path = UpgradedPath(type_desc.proto_path)
+      upgrade_type_desc.enum_type = type_desc.enum_type
       upgraded_types.append((UpgradedType(type_name), upgrade_type_desc))
   for n, t in upgraded_types:
     type_map[n] = t
@@ -160,6 +161,7 @@ if __name__ == '__main__':
     type_desc = type_db.types[t]
     type_desc.qualified_package = type_map[t].qualified_package
     type_desc.proto_path = type_map[t].proto_path
+    type_desc.enum_type = type_map[t].enum_type
     if type_desc.qualified_package in next_versions_pkgs:
       type_desc.next_version_type_name = UpgradedType(t)
       assert (type_desc.next_version_type_name != t)

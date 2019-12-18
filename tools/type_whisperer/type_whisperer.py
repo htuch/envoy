@@ -24,6 +24,7 @@ class TypeWhispererVisitor(visitor.Visitor):
   def VisitEnum(self, enum_proto, type_context):
     type_desc = self._types.types[type_context.name]
     type_desc.next_version_upgrade = any(v.options.deprecated for v in enum_proto.value)
+    type_desc.enum_type = True
 
   def VisitMessage(self, msg_proto, type_context, nested_msgs, nested_enums):
     type_desc = self._types.types[type_context.name]

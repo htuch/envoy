@@ -36,8 +36,14 @@ public:
 
   // Convert from a protobuf type, e.g. foo.bar.v2, to a C++ type, e.g.
   // foo::bar::v2.
-  static std::string protoToCxxType(const std::string& proto_type_name, bool qualified) {
+  static std::string protoToCxxType(const std::string& proto_type_name, bool qualified,
+                                    bool enum_type) {
     std::vector<std::string> frags = absl::StrSplit(proto_type_name, '.');
+    // We drop the enum type name, it's not needed and confuses the mangling
+    // when enums are nested in messages.
+    if (enum_type) {
+      frags.pop_back();
+    }
     // We collapse foo.Bar.Baz (sub-messages) to foo.Bar_Baz as done by protoc
     // C++ code generation.
     while (frags.size() >= 2) {

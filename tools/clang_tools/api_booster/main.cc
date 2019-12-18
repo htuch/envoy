@@ -114,7 +114,7 @@ private:
     tryBoostType(unqual_type_loc.getType().getCanonicalType().getAsString(),
                  rewrite ? absl::make_optional<clang::SourceRange>(unqual_type_loc.getSourceRange())
                          : absl::nullopt,
-                 source_manager, type_loc.getType()->getTypeClassName());
+                 source_manager, type_loc.getType()->getTypeClassName(), false);
   }
 
   // Match callback for clang::UsingDecl. These are 'using' aliases for API type
@@ -126,7 +126,7 @@ private:
     const clang::SourceRange source_range = clang::SourceRange(
         using_decl.getQualifierLoc().getBeginLoc(), using_decl.getNameInfo().getEndLoc());
     const std::string type_name = getSourceText(source_range, source_manager);
-    tryBoostType(type_name, source_range, source_manager, "UsingDecl");
+    tryBoostType(type_name, source_range, source_manager, "UsingDecl", true);
   }
 
   // Match callback for clang::DeclRefExpr. These occur when enums constants,
@@ -152,7 +152,7 @@ private:
         const std::string type_name = type_name_with_suffix.substr(
             0, type_name_with_suffix.size() - enum_generated_method_suffix.size());
         tryBoostType(type_name, begin_loc, type_name.size(), source_manager,
-                     "DeclRefExpr suffixed " + enum_generated_method_suffix);
+                     "DeclRefExpr suffixed " + enum_generated_method_suffix, false);
         return;
       }
     }
@@ -178,7 +178,7 @@ private:
                                             .getCanonicalType()
                                             .getUnqualifiedType()
                                             .getAsString();
-    tryBoostType(type_name, source_range, source_manager, "DeclRefExpr");
+    tryBoostType(type_name, source_range, source_manager, "DeclRefExpr", true);
   }
 
   // Match callback clang::CallExpr. We don't need to rewrite, but if it's something like
@@ -204,7 +204,7 @@ private:
                                           .getCanonicalType()
                                           .getUnqualifiedType()
                                           .getAsString();
-        tryBoostType(type_name, {}, source_manager, "validation invocation", true);
+        tryBoostType(type_name, {}, source_manager, "validation invocation", true, true);
       }
     }
   }
@@ -225,26 +225,27 @@ private:
                                         .getCanonicalType()
                                         .getUnqualifiedType()
                                         .getAsString();
-      tryBoostType(type_name, {}, source_manager, "FactoryBase template", true);
+      tryBoostType(type_name, {}, source_manager, "FactoryBase template", true, true);
     }
   }
 
   // Attempt to boost a given type and rewrite the given source range.
   void tryBoostType(const std::string& type_name, absl::optional<clang::SourceRange> source_range,
                     const clang::SourceManager& source_manager, absl::string_view debug_description,
-                    bool validation_required = false) {
+                    bool requires_enum_truncation, bool validation_required = false) {
     if (source_range) {
       tryBoostType(type_name, source_manager.getSpellingLoc(source_range->getBegin()),
                    sourceRangeLength(*source_range, source_manager), source_manager,
-                   debug_description, validation_required);
+                   debug_description, requires_enum_truncation, validation_required);
     } else {
-      tryBoostType(type_name, {}, -1, source_manager, debug_description, validation_required);
+      tryBoostType(type_name, {}, -1, source_manager, debug_description, requires_enum_truncation,
+                   validation_required);
     }
   }
 
   void tryBoostType(const std::string& type_name, clang::SourceLocation begin_loc, int length,
                     const clang::SourceManager& source_manager, absl::string_view debug_description,
-                    bool validation_required = false) {
+                    bool requires_enum_truncation, bool validation_required = false) {
     const auto latest_type_info = getLatestTypeInformationFromCType(type_name);
     // If this isn't a known API type, our work here is done.
     if (!latest_type_info) {
@@ -269,7 +270,8 @@ private:
     // Add corresponding replacement.
     clang::tooling::Replacement type_replacement(
         source_manager, begin_loc, length,
-        ProtoCxxUtils::protoToCxxType(latest_type_info->type_name_, qualified));
+        ProtoCxxUtils::protoToCxxType(latest_type_info->type_name_, qualified,
+                                      latest_type_info->enum_type_ && requires_enum_truncation));
     llvm::Error error = replacements_[type_replacement.getFilePath()].add(type_replacement);
     if (error) {
       std::cerr << "  Replacement insertion error: " << llvm::toString(std::move(error))
