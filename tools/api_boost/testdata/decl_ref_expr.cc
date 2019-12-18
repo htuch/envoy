@@ -1,3 +1,4 @@
+#include "envoy/api/v2/cds.pb.h"
 #include "envoy/config/overload/v2alpha/overload.pb.h"
 
 #define ASSERT(x) static_cast<void>(x)
@@ -21,5 +22,6 @@ public:
     }
     envoy::config::overload::v2alpha::ThresholdTrigger::default_instance();
     ASSERT(envoy::config::overload::v2alpha::Trigger::kThreshold == Trigger::kThreshold);
+    envoy::api::v2::Cluster_LbPolicy_Name(0);
   }
 };

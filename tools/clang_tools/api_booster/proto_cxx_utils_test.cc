@@ -21,6 +21,9 @@ TEST(ProtoCxxUtils, ProtoToCxxType) {
   EXPECT_EQ("foo", ProtoCxxUtils::protoToCxxType("foo", true));
   EXPECT_EQ("bar", ProtoCxxUtils::protoToCxxType("foo.bar", false));
   EXPECT_EQ("foo::bar", ProtoCxxUtils::protoToCxxType("foo.bar", true));
+  EXPECT_EQ("foo::Bar", ProtoCxxUtils::protoToCxxType("foo.Bar", true));
+  EXPECT_EQ("foo::Bar_Baz", ProtoCxxUtils::protoToCxxType("foo.Bar.Baz", true));
+  EXPECT_EQ("foo::Bar_Baz_Blah", ProtoCxxUtils::protoToCxxType("foo.Bar.Baz.Blah", true));
 }
 
 } // namespace

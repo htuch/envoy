@@ -138,6 +138,24 @@ private:
     if (!decl_ref_expr.hasQualifier()) {
       return;
     }
+    const std::string decl_name = decl_ref_expr.getNameInfo().getAsString();
+    // There are generated methods to stringify/parse/validate enum values,
+    // these need special treatment as they look like types with special
+    // suffices.
+    for (const std::string& enum_generated_method_suffix : {"_Name", "_Parse", "_IsValid"}) {
+      if (absl::EndsWith(decl_name, enum_generated_method_suffix)) {
+        // Remove trailing suffix from reference for replacement range and type
+        // name purposes.
+        const clang::SourceLocation begin_loc = decl_ref_expr.getBeginLoc();
+        const std::string type_name_with_suffix =
+            getSourceText(decl_ref_expr.getSourceRange(), source_manager);
+        const std::string type_name = type_name_with_suffix.substr(
+            0, type_name_with_suffix.size() - enum_generated_method_suffix.size());
+        tryBoostType(type_name, begin_loc, type_name.size(), source_manager,
+                     "DeclRefExpr suffixed " + enum_generated_method_suffix);
+        return;
+      }
+    }
     // Remove trailing : from namespace qualifier.
     const clang::SourceRange source_range =
         clang::SourceRange(decl_ref_expr.getQualifierLoc().getBeginLoc(),
@@ -152,8 +170,7 @@ private:
         "descriptor",
         "default_instance",
     };
-    const bool is_proto_static_generated_method =
-        ProtoStaticGeneratedMethod.count(decl_ref_expr.getNameInfo().getAsString()) != 0;
+    const bool is_proto_static_generated_method = ProtoStaticGeneratedMethod.count(decl_name) != 0;
     const std::string type_name = is_proto_static_generated_method
                                       ? getSourceText(source_range, source_manager)
                                       : decl_ref_expr.getDecl()
@@ -216,12 +233,25 @@ private:
   void tryBoostType(const std::string& type_name, absl::optional<clang::SourceRange> source_range,
                     const clang::SourceManager& source_manager, absl::string_view debug_description,
                     bool validation_required = false) {
+    if (source_range) {
+      tryBoostType(type_name, source_manager.getSpellingLoc(source_range->getBegin()),
+                   sourceRangeLength(*source_range, source_manager), source_manager,
+                   debug_description, validation_required);
+    } else {
+      tryBoostType(type_name, {}, -1, source_manager, debug_description, validation_required);
+    }
+  }
+
+  void tryBoostType(const std::string& type_name, clang::SourceLocation begin_loc, int length,
+                    const clang::SourceManager& source_manager, absl::string_view debug_description,
+                    bool validation_required = false) {
     const auto latest_type_info = getLatestTypeInformationFromCType(type_name);
     // If this isn't a known API type, our work here is done.
     if (!latest_type_info) {
       return;
     }
-    DEBUG_LOG(absl::StrCat("Matched type '", type_name, "' (", debug_description, ")"));
+    DEBUG_LOG(absl::StrCat("Matched type '", type_name, "' (", debug_description, ") length ",
+                           length, " at ", begin_loc.printToString(source_manager)));
     // Track corresponding imports.
     source_api_proto_paths_.insert(adjustProtoSuffix(latest_type_info->proto_path_, ".pb.h"));
     if (validation_required) {
@@ -229,16 +259,17 @@ private:
           adjustProtoSuffix(latest_type_info->proto_path_, ".pb.validate.h"));
     }
     // Not all AST matchers know how to do replacements (yet?).
-    if (!source_range) {
+    if (length == -1) {
       return;
     }
     // We need to look at the text we're replacing to decide whether we should
     // use the qualified C++'ified proto name.
-    const bool qualified = getSourceText(*source_range, source_manager).find("::") != std::string::npos;
+    const bool qualified =
+        getSourceText(begin_loc, length, source_manager).find("::") != std::string::npos;
     // Add corresponding replacement.
-    const clang::CharSourceRange char_source_range = clang::CharSourceRange::getTokenRange(*source_range);
     clang::tooling::Replacement type_replacement(
-        source_manager, char_source_range, ProtoCxxUtils::protoToCxxType(latest_type_info->type_name_, qualified));
+        source_manager, begin_loc, length,
+        ProtoCxxUtils::protoToCxxType(latest_type_info->type_name_, qualified));
     llvm::Error error = replacements_[type_replacement.getFilePath()].add(type_replacement);
     if (error) {
       std::cerr << "  Replacement insertion error: " << llvm::toString(std::move(error))
@@ -246,6 +277,30 @@ private:
     } else {
       std::cerr << "  Replacement added: " << type_replacement.toString() << std::endl;
     }
+  }
+
+  // Modeled after getRangeSize() in Clang's Replacements.cpp. Turns out it's
+  // non-trivial to get the actual length of a SourceRange, as the end location
+  // point to the start of the last token.
+  int sourceRangeLength(clang::SourceRange source_range,
+                        const clang::SourceManager& source_manager) {
+    const clang::SourceLocation spelling_begin =
+        source_manager.getSpellingLoc(source_range.getBegin());
+    const clang::SourceLocation spelling_end = source_manager.getSpellingLoc(source_range.getEnd());
+    std::pair<clang::FileID, unsigned> start = source_manager.getDecomposedLoc(spelling_begin);
+    std::pair<clang::FileID, unsigned> end = source_manager.getDecomposedLoc(spelling_end);
+    if (start.first != end.first) {
+      return -1;
+    }
+    end.second += clang::Lexer::MeasureTokenLength(spelling_end, source_manager, lexer_lopt_);
+    return end.second - start.second;
+  }
+
+  std::string getSourceText(clang::SourceLocation begin_loc, int size,
+                            const clang::SourceManager& source_manager) {
+    return clang::Lexer::getSourceText(
+        {clang::SourceRange(begin_loc, begin_loc.getLocWithOffset(size)), false}, source_manager,
+        lexer_lopt_, 0);
   }
 
   std::string getSourceText(clang::SourceRange source_range,
