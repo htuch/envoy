@@ -51,6 +51,10 @@ public:
 
   // AST match callback dispatcher.
   void run(const clang::ast_matchers::MatchFinder::MatchResult& match_result) override {
+    DEBUG_LOG("AST match callback dispatcher");
+    for (const auto it : match_result.Nodes.getMap()) {
+      DEBUG_LOG(absl::StrCat("  Result for ", it.first));
+    }
     clang::SourceManager& source_manager = match_result.Context->getSourceManager();
     if (const auto* type_loc = match_result.Nodes.getNodeAs<clang::TypeLoc>("type")) {
       onTypeLocMatch(*type_loc, source_manager);
@@ -138,8 +142,10 @@ private:
     const clang::SourceRange source_range =
         clang::SourceRange(decl_ref_expr.getQualifierLoc().getBeginLoc(),
                            decl_ref_expr.getQualifierLoc().getEndLoc().getLocWithOffset(-1));
-    const std::string type_name = clang::Lexer::getSourceText(
-        clang::CharSourceRange::getTokenRange(source_range), source_manager, lexer_lopt_, 0);
+    const std::string type_name =
+        decl_ref_expr.getDecl()->getType().getCanonicalType().getUnqualifiedType().getAsString();
+    clang::Lexer::getSourceText(clang::CharSourceRange::getTokenRange(source_range), source_manager,
+                                lexer_lopt_, 0);
     tryBoostType(type_name, source_range, source_manager, "DeclRefExpr");
   }
 
@@ -307,12 +313,15 @@ int main(int argc, const char** argv) {
 
   // Match on all call expressions. We are interested in particular in calls
   // where validation on protos is performed.
-  auto call_matcher = clang::ast_matchers::callExpr().bind("call_expr");
+  auto call_matcher =
+      clang::ast_matchers::callExpr(clang::ast_matchers::isExpansionInMainFile()).bind("call_expr");
   finder.addMatcher(call_matcher, &api_booster);
 
   // Match on all template instantiations.We are interested in particular in
   // instantiations of factories where validation on protos is performed.
-  auto tmpl_matcher = clang::ast_matchers::classTemplateSpecializationDecl().bind("tmpl");
+  auto tmpl_matcher = clang::ast_matchers::classTemplateSpecializationDecl(
+                          clang::ast_matchers::isExpansionInMainFile())
+                          .bind("tmpl");
   finder.addMatcher(tmpl_matcher, &api_booster);
 
   // Apply ApiBooster to AST matches. This will generate a set of replacements in
