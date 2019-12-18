@@ -12,10 +12,11 @@ public:
       break;
     }
     switch (config.trigger_oneof_case()) {
-    case Trigger::kThreshold:
+    case envoy::config::overload::v3alpha::Trigger::kThreshold:
       break;
     default:
       break;
     }
+    envoy::config::overload::v3alpha::ThresholdTrigger::default_instance();
   }
 };

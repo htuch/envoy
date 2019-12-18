@@ -17,5 +17,6 @@ public:
     default:
       break;
     }
+    envoy::config::overload::v2alpha::ThresholdTrigger::default_instance();
   }
 };

@@ -51,11 +51,12 @@ public:
 
   // AST match callback dispatcher.
   void run(const clang::ast_matchers::MatchFinder::MatchResult& match_result) override {
+    clang::SourceManager& source_manager = match_result.Context->getSourceManager();
     DEBUG_LOG("AST match callback dispatcher");
     for (const auto it : match_result.Nodes.getMap()) {
-      DEBUG_LOG(absl::StrCat("  Result for ", it.first));
+      DEBUG_LOG(absl::StrCat("  Result for ", it.first, " [",
+                             getSourceText(it.second.getSourceRange(), source_manager), "]"));
     }
-    clang::SourceManager& source_manager = match_result.Context->getSourceManager();
     if (const auto* type_loc = match_result.Nodes.getNodeAs<clang::TypeLoc>("type")) {
       onTypeLocMatch(*type_loc, source_manager);
       return;
@@ -124,8 +125,7 @@ private:
     // is such an API type database match.
     const clang::SourceRange source_range = clang::SourceRange(
         using_decl.getQualifierLoc().getBeginLoc(), using_decl.getNameInfo().getEndLoc());
-    const std::string type_name = clang::Lexer::getSourceText(
-        clang::CharSourceRange::getTokenRange(source_range), source_manager, lexer_lopt_, 0);
+    const std::string type_name = getSourceText(source_range, source_manager);
     tryBoostType(type_name, source_range, source_manager, "UsingDecl");
   }
 
@@ -142,10 +142,25 @@ private:
     const clang::SourceRange source_range =
         clang::SourceRange(decl_ref_expr.getQualifierLoc().getBeginLoc(),
                            decl_ref_expr.getQualifierLoc().getEndLoc().getLocWithOffset(-1));
-    const std::string type_name =
-        decl_ref_expr.getDecl()->getType().getCanonicalType().getUnqualifiedType().getAsString();
-    clang::Lexer::getSourceText(clang::CharSourceRange::getTokenRange(source_range), source_manager,
-                                lexer_lopt_, 0);
+    // Generally we pull the type from the named entity's declaration type,
+    // since this allows us to map from things like envoy::type::HTTP2 to the
+    // underlying fully qualified envoy::type::CodecClientType::HTTP2 prior to
+    // API type database lookup. However, for the generated static methods, we
+    // don't want to deal with lookup via the function type, so we do the fixup
+    // here.
+    const std::set<std::string> ProtoStaticGeneratedMethod = {
+        "descriptor",
+        "default_instance",
+    };
+    const bool is_proto_static_generated_method =
+        ProtoStaticGeneratedMethod.count(decl_ref_expr.getNameInfo().getAsString()) != 0;
+    const std::string type_name = is_proto_static_generated_method
+                                      ? getSourceText(source_range, source_manager)
+                                      : decl_ref_expr.getDecl()
+                                            ->getType()
+                                            .getCanonicalType()
+                                            .getUnqualifiedType()
+                                            .getAsString();
     tryBoostType(type_name, source_range, source_manager, "DeclRefExpr");
   }
 
@@ -231,6 +246,12 @@ private:
     } else {
       std::cerr << "  Replacement added: " << type_replacement.toString() << std::endl;
     }
+  }
+
+  std::string getSourceText(clang::SourceRange source_range,
+                            const clang::SourceManager& source_manager) {
+    return clang::Lexer::getSourceText(clang::CharSourceRange::getTokenRange(source_range),
+                                       source_manager, lexer_lopt_, 0);
   }
 
   void addNamedspaceQualifiedTypeReplacement() {}
