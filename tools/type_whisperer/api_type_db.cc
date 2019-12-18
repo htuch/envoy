@@ -35,7 +35,8 @@ absl::optional<TypeInformation> ApiTypeDb::getLatestTypeInformation(const std::s
     if (it == getApiTypeDb().types().end()) {
       return result;
     }
-    result.emplace(current_type_name, it->second.proto_path(), it->second.enum_type());
+    result.emplace(current_type_name, it->second.type_details().proto_path(),
+                   it->second.type_details().enum_type());
     current_type_name = it->second.next_version_type_name();
   }
 }

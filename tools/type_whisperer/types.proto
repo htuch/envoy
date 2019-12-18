@@ -11,17 +11,13 @@ message FieldDescription {
   string rename = 2;
 }
 
-// Description for a single type.
-message TypeDescription {
+// Type details for a single type.
+message TypeDetails {
   // Fully qualified package name.
   string qualified_package = 1;
 
   // Path to .proto from API root.
   string proto_path = 2;
-
-  // Does this type have a breaking change? If so, it needs to be upgraded at
-  // the next major version.
-  bool next_version_upgrade = 3;
 
   // Is this type an enum? There is special treatment required during API
   // boosting and name mangling.
@@ -31,13 +27,17 @@ message TypeDescription {
   map<string, FieldDescription> fields = 6;
 }
 
-// Types that depend on other types.
-message DependentTypeDescription {
+// Description for a single type.
+message TypeDescription {
   // Type details.
-  TypeDescription type_description = 1;
+  TypeDetails type_details = 1;
+
+  // Does this type have a breaking change? If so, it needs to be upgraded at
+  // the next major version.
+  bool next_version_upgrade = 2;
 
   // Fully qualified type names for type dependencies.
-  repeated string type_dependencies = 2;
+  repeated string type_dependencies = 3;
 }
 
 message Types {

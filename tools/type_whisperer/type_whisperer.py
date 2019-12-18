@@ -24,7 +24,7 @@ class TypeWhispererVisitor(visitor.Visitor):
   def VisitEnum(self, enum_proto, type_context):
     type_desc = self._types.types[type_context.name]
     type_desc.next_version_upgrade = any(v.options.deprecated for v in enum_proto.value)
-    type_desc.enum_type = True
+    type_desc.type_details.enum_type = True
 
   def VisitMessage(self, msg_proto, type_context, nested_msgs, nested_enums):
     type_desc = self._types.types[type_context.name]
@@ -38,8 +38,8 @@ class TypeWhispererVisitor(visitor.Visitor):
 
   def VisitFile(self, file_proto, type_context, services, msgs, enums):
     for t in self._types.types.values():
-      t.qualified_package = file_proto.package
-      t.proto_path = file_proto.name
+      t.type_details.qualified_package = file_proto.package
+      t.type_details.proto_path = file_proto.name
     # Return in text proto format. This makes things easier to debug, these
     # don't need to be compact as they are only interim build artifacts.
     return str(self._types)

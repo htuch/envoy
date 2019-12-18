@@ -6,8 +6,8 @@ load("@com_google_protobuf//:protobuf.bzl", "py_proto_library")
 
 envoy_package()
 
-py_proto_library(
-    name = "types_py_proto",
+envoy_proto_library(
+    name = "types",
     srcs = ["types.proto"],
 )
 
@@ -75,4 +75,5 @@ envoy_cc_library(
 envoy_proto_library(
     name = "api_type_db_proto",
     srcs = ["api_type_db.proto"],
+    deps = ["//tools/type_whisperer:types"],
 )
