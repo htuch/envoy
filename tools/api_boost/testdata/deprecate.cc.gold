@@ -5,5 +5,5 @@ void test() {
   envoy::api::v3alpha::route::VirtualHost vhost;
   vhost.hidden_envoy_deprecated_per_filter_config();
   vhost.mutable_hidden_envoy_deprecated_per_filter_config();
-  static_cast<void>(envoy::type::matcher::v3alpha::StringMatcher::kHiddenEnvoyDeprecatedRegex);
+  static_cast<void>(envoy::type::matcher::v3alpha::StringMatcher::MatchPatternCase::kHiddenEnvoyDeprecatedRegex);
 }

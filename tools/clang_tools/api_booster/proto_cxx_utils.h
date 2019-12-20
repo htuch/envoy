@@ -31,7 +31,7 @@ public:
   // this for synthesized oneof cases.
   static absl::optional<std::string>
   renameConstant(absl::string_view constant_name,
-                const std::unordered_map<std::string, std::string> field_renames);
+                 const std::unordered_map<std::string, std::string> field_renames);
 
   // Convert from a protobuf type, e.g. foo.bar.v2, to a C++ type, e.g.
   // foo::bar::v2.

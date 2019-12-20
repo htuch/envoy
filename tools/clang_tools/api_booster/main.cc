@@ -102,6 +102,10 @@ public:
   }
 
 private:
+  static bool isEnvoyNamespace(absl::string_view s) {
+    return absl::StartsWith(s, "envoy::") || absl::StartsWith(s, "::envoy::");
+  }
+
   // Match callback for TypeLoc. These are explicit mentions of the type in the
   // source. If we have a match on type, we should track the corresponding .pb.h
   // and attempt to upgrade.
@@ -110,12 +114,13 @@ private:
         type_loc.getType().getCanonicalType().getUnqualifiedType().getAsString();
     // Remove qualifiers, e.g. const.
     const clang::UnqualTypeLoc unqual_type_loc = type_loc.getUnqualifiedLoc();
-
     // Today we are only smart enought to rewrite ElaborateTypeLoc, which are
     // full namespace prefixed types. We probably will need to support more, in
     // particular if we want message-level type renaming. TODO(htuch): add more
     // supported AST TypeLoc classes as needed.
-    const bool rewrite = unqual_type_loc.getTypeLocClass() == clang::TypeLoc::Elaborated;
+    const bool rewrite =
+        unqual_type_loc.getTypeLocClass() == clang::TypeLoc::Elaborated &&
+        isEnvoyNamespace(getSourceText(unqual_type_loc.getSourceRange(), source_manager));
     tryBoostType(unqual_type_loc.getType().getCanonicalType().getAsString(),
                  rewrite ? absl::make_optional<clang::SourceRange>(unqual_type_loc.getSourceRange())
                          : absl::nullopt,
@@ -196,8 +201,8 @@ private:
     if (constant_rename) {
       const clang::SourceRange decl_source_range = decl_ref_expr.getNameInfo().getSourceRange();
       const clang::tooling::Replacement constant_replacement(
-          source_manager, decl_source_range.getBegin(), sourceRangeLength(decl_source_range, source_manager),
-          *constant_rename);
+          source_manager, decl_source_range.getBegin(),
+          sourceRangeLength(decl_source_range, source_manager), *constant_rename);
       insertReplacement(constant_replacement);
     }
   }
@@ -314,11 +319,15 @@ private:
     // use the qualified C++'ified proto name.
     const bool qualified =
         getSourceText(begin_loc, length, source_manager).find("::") != std::string::npos;
+    std::string case_residual;
+    if (absl::EndsWith(type_name, "Case")) {
+      case_residual = type_name.substr(type_name.rfind(':') - 1);
+    }
     // Add corresponding replacement.
     const clang::tooling::Replacement type_replacement(
         source_manager, begin_loc, length,
         ProtoCxxUtils::protoToCxxType(latest_type_info->type_name_, qualified,
-                                      latest_type_info->enum_type_ && requires_enum_truncation));
+                                      latest_type_info->enum_type_ && requires_enum_truncation) + case_residual);
     insertReplacement(type_replacement);
   }
 
@@ -377,7 +386,7 @@ private:
     // TODO(htuch): this is all super hacky and not really right, we should be
     // removing qualifiers etc. to get to the underlying type name.
     const std::string type_name = std::regex_replace(c_type_name, std::regex("^(class|enum) "), "");
-    if (!absl::StartsWith(type_name, "envoy::") || absl::StrContains(type_name, " ")) {
+    if (!isEnvoyNamespace(type_name) || absl::StrContains(type_name, " ")) {
       return {};
     }
     const std::string proto_type_name = ProtoCxxUtils::cxxToProtoType(type_name);

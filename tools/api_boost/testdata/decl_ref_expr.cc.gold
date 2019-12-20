@@ -9,20 +9,20 @@ class ThresholdTriggerImpl {
 public:
   ThresholdTriggerImpl(const envoy::config::overload::v3alpha::Trigger& config) {
     switch (config.trigger_oneof_case()) {
-    case envoy::config::overload::v3alpha::Trigger::kThreshold:
+    case envoy::config::overload::v3alpha::Trigger::TriggerOneofCase::kThreshold:
       break;
     default:
       break;
     }
     switch (config.trigger_oneof_case()) {
-    case Trigger::kThreshold:
+    case Trigger::TriggerOneofCase::kThreshold:
       break;
     default:
       break;
     }
     envoy::config::overload::v3alpha::ThresholdTrigger::default_instance();
-    ASSERT(envoy::config::overload::v3alpha::Trigger::kThreshold == Trigger::kThreshold);
-    envoy::api::v3alpha::Cluster_LbPolicy_Name(0);
+    ASSERT(envoy::config::overload::v3alpha::Trigger::TriggerOneofCase::kThreshold == Trigger::TriggerOneofCase::kThreshold);
+    envoy::api::v3alpha::Cluster::LbPolicy_Name(0);
     static_cast<void>(envoy::api::v3alpha::Cluster::ORIGINAL_DST_LB);
   }
 };

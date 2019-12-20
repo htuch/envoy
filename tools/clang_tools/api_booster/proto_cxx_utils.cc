@@ -30,18 +30,18 @@ std::string ProtoCxxUtils::protoToCxxType(const std::string& proto_type_name, bo
   }
   // We collapse foo.Bar.Baz (sub-messages) to foo.Bar_Baz as done by protoc
   // C++ code generation.
-  while (frags.size() >= 2) {
-    const std::string& last_frag = frags[frags.size() - 1];
-    const std::string& second_last_frag = frags[frags.size() - 2];
-    if (isupper(last_frag[0]) && isupper(second_last_frag[0])) {
-      const std::string collapsed_frag = second_last_frag + "_" + last_frag;
-      frags.pop_back();
-      frags.pop_back();
-      frags.push_back(collapsed_frag);
-    } else {
-      break;
-    }
-  }
+  //while (frags.size() >= 2) {
+  //  const std::string& last_frag = frags[frags.size() - 1];
+  //  const std::string& second_last_frag = frags[frags.size() - 2];
+  //  if (isupper(last_frag[0]) && isupper(second_last_frag[0])) {
+  //    const std::string collapsed_frag = second_last_frag + "_" + last_frag;
+  //    frags.pop_back();
+  //    frags.pop_back();
+  //    frags.push_back(collapsed_frag);
+  //  } else {
+  //    break;
+  //  }
+  //}
   if (qualified) {
     return absl::StrJoin(frags, "::");
   } else {
