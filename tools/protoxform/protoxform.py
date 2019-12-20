@@ -530,11 +530,9 @@ def ParameterCallback(parameter):
 def Main():
   plugin.Plugin([
       plugin.DirectOutputDescriptor('.v2.proto', ProtoFormatVisitor),
-      plugin.OutputDescriptor(
-          '.v3alpha.proto', ProtoFormatVisitor,
-          functools.partial(migrate.V3MigrationXform, False)),
-      plugin.OutputDescriptor('.v3alpha.envoy_internal.proto',
-                              ProtoFormatVisitor,
+      plugin.OutputDescriptor('.v3alpha.proto', ProtoFormatVisitor,
+                              functools.partial(migrate.V3MigrationXform, False)),
+      plugin.OutputDescriptor('.v3alpha.envoy_internal.proto', ProtoFormatVisitor,
                               functools.partial(migrate.V3MigrationXform, True))
   ], ParameterCallback)
 

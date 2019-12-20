@@ -72,4 +72,32 @@ ProtoCxxUtils::renameMethod(absl::string_view method_name,
   return {};
 }
 
+absl::optional<std::string>
+ProtoCxxUtils::renameConstant(absl::string_view constant_name,
+                              const std::unordered_map<std::string, std::string> field_renames) {
+  if (constant_name.size() < 2 || constant_name[0] != 'k' || !isupper(constant_name[1])) {
+    return {};
+  }
+  std::vector<std::string> frags;
+  for (const char c : constant_name.substr(1)) {
+    if (isupper(c)) {
+      frags.emplace_back(1, tolower(c));
+    } else {
+      frags.back().push_back(c);
+    }
+  }
+  const std::string field_name = absl::StrJoin(frags, "_");
+  const auto it = field_renames.find(field_name);
+  if (it == field_renames.cend()) {
+    return {};
+  }
+  std::vector<std::string> new_frags = absl::StrSplit(it->second, '_');
+  for (auto& frag_it : new_frags) {
+    if (!frag_it.empty()) {
+      frag_it[0] = toupper(frag_it[0]);
+    }
+  }
+  return "k" + absl::StrJoin(new_frags, "");
+}
+
 } // namespace ApiBooster

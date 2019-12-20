@@ -253,7 +253,8 @@ if __name__ == '__main__':
     dst_dir = pathlib.Path(tmp).joinpath("b")
     for label in args.labels:
       SyncProtoFile(args.mode, utils.BazelBinPathForOutputArtifact(label, '.v2.proto'), dst_dir)
-      SyncProtoFile(args.mode, utils.BazelBinPathForOutputArtifact(label, '.v3alpha.envoy_internal.proto'),
+      SyncProtoFile(args.mode,
+                    utils.BazelBinPathForOutputArtifact(label, '.v3alpha.envoy_internal.proto'),
                     dst_dir)
       #SyncProtoFile(args.mode, utils.BazelBinPathForOutputArtifact(label, '.v3alpha.proto'),
       #              dst_dir)

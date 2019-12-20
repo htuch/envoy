@@ -27,6 +27,12 @@ public:
   renameMethod(absl::string_view method_name,
                const std::unordered_map<std::string, std::string> field_renames);
 
+  // Given a constant, e.g. kFooBar, determine if it needs upgrading. We need
+  // this for synthesized oneof cases.
+  static absl::optional<std::string>
+  renameConstant(absl::string_view constant_name,
+                const std::unordered_map<std::string, std::string> field_renames);
+
   // Convert from a protobuf type, e.g. foo.bar.v2, to a C++ type, e.g.
   // foo::bar::v2.
   static std::string protoToCxxType(const std::string& proto_type_name, bool qualified,

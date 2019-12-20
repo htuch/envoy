@@ -184,6 +184,22 @@ private:
                                             .getUnqualifiedType()
                                             .getAsString();
     tryBoostType(type_name, source_range, source_manager, "DeclRefExpr", true);
+    // We need to map from envoy::type::matcher::StringMatcher::kRegex to
+    // envoy::type::matcher::v3alpha::StringMatcher::kHiddenEnvoyDeprecatedRegex.
+    const auto latest_type_info = getLatestTypeInformationFromCType(type_name);
+    // If this isn't a known API type, our work here is done.
+    if (!latest_type_info) {
+      return;
+    }
+    const auto constant_rename =
+        ProtoCxxUtils::renameConstant(decl_name, latest_type_info->field_renames_);
+    if (constant_rename) {
+      const clang::SourceRange decl_source_range = decl_ref_expr.getNameInfo().getSourceRange();
+      const clang::tooling::Replacement constant_replacement(
+          source_manager, decl_source_range.getBegin(), sourceRangeLength(decl_source_range, source_manager),
+          *constant_rename);
+      insertReplacement(constant_replacement);
+    }
   }
 
   // Match callback clang::CallExpr. We don't need to rewrite, but if it's something like

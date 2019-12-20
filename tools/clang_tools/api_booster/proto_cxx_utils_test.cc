@@ -50,5 +50,16 @@ TEST(ProtoCxxUtils, RenameMethod) {
   EXPECT_EQ("bar_size", ProtoCxxUtils::renameMethod("foo_size", field_renames));
 }
 
+// Validate proto field accessor upgrades.
+TEST(ProtoCxxUtils, RenameConstant) {
+  const std::unordered_map<std::string, std::string> field_renames = {
+      {"foo_bar", "bar_foo"},
+      {"foo_baz", "baz"},
+  };
+  EXPECT_EQ(absl::nullopt, ProtoCxxUtils::renameConstant("whatevs", field_renames));
+  EXPECT_EQ("kBarFoo", ProtoCxxUtils::renameConstant("kFooBar", field_renames));
+  EXPECT_EQ("kBaz", ProtoCxxUtils::renameConstant("kFooBaz", field_renames));
+}
+
 } // namespace
 } // namespace ApiBooster
