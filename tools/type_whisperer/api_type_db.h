@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unordered_map>
+
 #include "absl/strings/string_view.h"
 #include "absl/types/optional.h"
 
@@ -20,6 +22,8 @@ struct TypeInformation {
 
   // Is this an enum type?
   const bool enum_type_;
+
+  std::unordered_map<std::string, std::string> field_renames_;
 };
 
 // We don't expose the raw API type database to consumers, as this requires RTTI

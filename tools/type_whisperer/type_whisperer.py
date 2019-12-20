@@ -7,6 +7,8 @@ from tools.api_proto_plugin import visitor
 
 from tools.type_whisperer.types_pb2 import Types
 
+from udpa.annotations import migrate_pb2
+
 
 class TypeWhispererVisitor(visitor.Visitor):
   """Visitor to compute type information from a FileDescriptor proto.
@@ -34,6 +36,10 @@ class TypeWhispererVisitor(visitor.Visitor):
         type_deps.add(f.type_name[1:])
       if f.options.deprecated:
         type_desc.next_version_upgrade = True
+      if f.options.HasExtension(migrate_pb2.field_migrate):
+        type_desc.type_details.fields[f.name].rename = f.options.Extensions[
+            migrate_pb2.field_migrate].rename
+
     type_desc.type_dependencies.extend(type_deps)
 
   def VisitFile(self, file_proto, type_context, services, msgs, enums):

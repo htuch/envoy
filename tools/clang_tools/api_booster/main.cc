@@ -74,6 +74,11 @@ public:
       onCallExprMatch(*call_expr, source_manager);
       return;
     }
+    if (const auto* member_call_expr =
+            match_result.Nodes.getNodeAs<clang::CXXMemberCallExpr>("member_call_expr")) {
+      onMemberCallExprMatch(*member_call_expr, source_manager);
+      return;
+    }
     if (const auto* tmpl =
             match_result.Nodes.getNodeAs<clang::ClassTemplateSpecializationDecl>("tmpl")) {
       onClassTemplateSpecializationDeclMatch(*tmpl, source_manager);
@@ -209,6 +214,32 @@ private:
     }
   }
 
+  // Match callback clang::CallMemberExpr. We rewrite things like
+  // ->mutable_foo() to ->mutable_foo_new_name() during renames.
+  void onMemberCallExprMatch(const clang::CXXMemberCallExpr& member_call_expr,
+                             const clang::SourceManager& source_manager) {
+    const std::string type_name =
+        member_call_expr.getObjectType().getCanonicalType().getUnqualifiedType().getAsString();
+    const auto latest_type_info = getLatestTypeInformationFromCType(type_name);
+    // If this isn't a known API type, our work here is done.
+    if (!latest_type_info) {
+      return;
+    }
+    const clang::SourceRange source_range = {member_call_expr.getExprLoc(),
+                                             member_call_expr.getExprLoc()};
+    const std::string method_name = getSourceText(source_range, source_manager);
+    DEBUG_LOG(
+        absl::StrCat("Matched member call expr on ", type_name, " with method ", method_name));
+    const auto method_rename =
+        ProtoCxxUtils::renameMethod(method_name, latest_type_info->field_renames_);
+    if (method_rename) {
+      const clang::tooling::Replacement method_replacement(
+          source_manager, source_range.getBegin(), sourceRangeLength(source_range, source_manager),
+          *method_rename);
+      insertReplacement(method_replacement);
+    }
+  }
+
   // Match callback for clang::ClassTemplateSpecializationDecl. An additional
   // place we need to look for .pb.validate.h reference is instantiation of
   // FactoryBase.
@@ -268,16 +299,20 @@ private:
     const bool qualified =
         getSourceText(begin_loc, length, source_manager).find("::") != std::string::npos;
     // Add corresponding replacement.
-    clang::tooling::Replacement type_replacement(
+    const clang::tooling::Replacement type_replacement(
         source_manager, begin_loc, length,
         ProtoCxxUtils::protoToCxxType(latest_type_info->type_name_, qualified,
                                       latest_type_info->enum_type_ && requires_enum_truncation));
-    llvm::Error error = replacements_[type_replacement.getFilePath()].add(type_replacement);
+    insertReplacement(type_replacement);
+  }
+
+  void insertReplacement(const clang::tooling::Replacement& replacement) {
+    llvm::Error error = replacements_[replacement.getFilePath()].add(replacement);
     if (error) {
       std::cerr << "  Replacement insertion error: " << llvm::toString(std::move(error))
                 << std::endl;
     } else {
-      std::cerr << "  Replacement added: " << type_replacement.toString() << std::endl;
+      std::cerr << "  Replacement added: " << replacement.toString() << std::endl;
     }
   }
 
@@ -394,6 +429,13 @@ int main(int argc, const char** argv) {
   auto call_matcher =
       clang::ast_matchers::callExpr(clang::ast_matchers::isExpansionInMainFile()).bind("call_expr");
   finder.addMatcher(call_matcher, &api_booster);
+
+  // Match on all .foo() or ->foo() expressions. We are interested in these for renames
+  // and deprecations.
+  auto member_call_expr =
+      clang::ast_matchers::cxxMemberCallExpr(clang::ast_matchers::isExpansionInMainFile())
+          .bind("member_call_expr");
+  finder.addMatcher(member_call_expr, &api_booster);
 
   // Match on all template instantiations.We are interested in particular in
   // instantiations of factories where validation on protos is performed.

@@ -145,7 +145,8 @@ if __name__ == '__main__':
     if type_desc.type_details.qualified_package in next_versions_pkgs:
       upgrade_type_desc = TypeDescription()
       upgrade_type_desc.type_details.MergeFrom(type_desc.type_details)
-      upgrade_type_desc.type_details.qualified_package = UpgradedType(type_desc.type_details.qualified_package)
+      upgrade_type_desc.type_details.qualified_package = UpgradedType(
+          type_desc.type_details.qualified_package)
       upgrade_type_desc.type_details.proto_path = UpgradedPath(type_desc.type_details.proto_path)
       upgraded_types.append((UpgradedType(type_name), upgrade_type_desc))
   for n, t in upgraded_types:
