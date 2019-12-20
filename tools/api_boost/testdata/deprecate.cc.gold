@@ -1,0 +1,7 @@
+#include "envoy/api/v3alpha/route/route.pb.h"
+
+void test() {
+  envoy::api::v3alpha::route::VirtualHost vhost;
+  vhost.hidden_envoy_deprecated_per_filter_config();
+  vhost.mutable_hidden_envoy_deprecated_per_filter_config();
+}

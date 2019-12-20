@@ -23,6 +23,7 @@ struct TypeInformation {
   // Is this an enum type?
   const bool enum_type_;
 
+  // Field renames.
   std::unordered_map<std::string, std::string> field_renames_;
 };
 

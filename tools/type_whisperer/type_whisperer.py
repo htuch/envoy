@@ -36,6 +36,7 @@ class TypeWhispererVisitor(visitor.Visitor):
         type_deps.add(f.type_name[1:])
       if f.options.deprecated:
         type_desc.next_version_upgrade = True
+        type_desc.type_details.fields[f.name].deprecate = True
       if f.options.HasExtension(migrate_pb2.field_migrate):
         type_desc.type_details.fields[f.name].rename = f.options.Extensions[
             migrate_pb2.field_migrate].rename
