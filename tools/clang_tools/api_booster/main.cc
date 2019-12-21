@@ -240,7 +240,7 @@ private:
   // Match callback clang::CallExpr. We don't need to rewrite, but if it's something like
   // loadFromYamlAndValidate, we might need to look at the argument type to
   // figure out any corresponding .pb.validate.h we require.
-  void onCallExprMatch(const clang::CallExpr& call_expr, const clang::Context& context;
+  void onCallExprMatch(const clang::CallExpr& call_expr, const clang::ASTContext& context;
                        const clang::SourceManager& source_manager) {
     auto* direct_callee = call_expr.getDirectCallee();
     if (direct_callee != nullptr) {
