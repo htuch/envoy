@@ -30,7 +30,7 @@ std::string ProtoCxxUtils::protoToCxxType(const std::string& proto_type_name, bo
   }
   // We collapse foo.Bar.Baz (sub-messages) to foo.Bar_Baz as done by protoc
   // C++ code generation.
-  //while (frags.size() >= 2) {
+  // while (frags.size() >= 2) {
   //  const std::string& last_frag = frags[frags.size() - 1];
   //  const std::string& second_last_frag = frags[frags.size() - 2];
   //  if (isupper(last_frag[0]) && isupper(second_last_frag[0])) {
@@ -51,10 +51,10 @@ std::string ProtoCxxUtils::protoToCxxType(const std::string& proto_type_name, bo
 
 absl::optional<std::string>
 ProtoCxxUtils::renameMethod(absl::string_view method_name,
-                            const std::unordered_map<std::string, std::string> field_renames) {
+                            const std::unordered_map<std::string, std::string> renames) {
   // Simple O(N * M) match, where M is constant (the set of prefixes/suffixes) so
   // should be fine.
-  for (const auto field_rename : field_renames) {
+  for (const auto field_rename : renames) {
     const std::vector<std::string> GeneratedMethodPrefixes = {
         "clear_", "set_", "has_", "mutable_", "set_allocated_", "release_", "add_", "",
     };
@@ -74,7 +74,7 @@ ProtoCxxUtils::renameMethod(absl::string_view method_name,
 
 absl::optional<std::string>
 ProtoCxxUtils::renameConstant(absl::string_view constant_name,
-                              const std::unordered_map<std::string, std::string> field_renames) {
+                              const std::unordered_map<std::string, std::string> renames) {
   if (constant_name.size() < 2 || constant_name[0] != 'k' || !isupper(constant_name[1])) {
     return {};
   }
@@ -87,8 +87,8 @@ ProtoCxxUtils::renameConstant(absl::string_view constant_name,
     }
   }
   const std::string field_name = absl::StrJoin(frags, "_");
-  const auto it = field_renames.find(field_name);
-  if (it == field_renames.cend()) {
+  const auto it = renames.find(field_name);
+  if (it == renames.cend()) {
     return {};
   }
   std::vector<std::string> new_frags = absl::StrSplit(it->second, '_');
@@ -98,6 +98,16 @@ ProtoCxxUtils::renameConstant(absl::string_view constant_name,
     }
   }
   return "k" + absl::StrJoin(new_frags, "");
+}
+
+absl::optional<std::string>
+ProtoCxxUtils::renameEnumValue(absl::string_view enum_value_name,
+                               const std::unordered_map<std::string, std::string> renames) {
+  const auto it = renames.find(enum_value_name);
+  if (it == renames.cend()) {
+    return {};
+  }
+  return it->second;
 }
 
 } // namespace ApiBooster

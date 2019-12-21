@@ -196,7 +196,7 @@ private:
       return;
     }
     // Deprecated enum constants need to be upgraded.
-    if (latest_type_info.enum_type_) {
+    if (latest_type_info->enum_type_) {
       const auto enum_value_rename =
           ProtoCxxUtils::renameEnumValue(decl_name, latest_type_info->renames_);
       if (enum_value_rename) {
