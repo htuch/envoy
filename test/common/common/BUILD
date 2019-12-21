@@ -5,6 +5,7 @@ load(
     "envoy_cc_binary",
     "envoy_cc_fuzz_test",
     "envoy_cc_test",
+    "envoy_cc_test_binary",
     "envoy_package",
 )
 
