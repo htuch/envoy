@@ -7,6 +7,6 @@ void test() {
   envoy::api::v3alpha::route::RouteAction route_action;
   route_action.host_rewrite_literal();
   route_action.set_host_rewrite_literal("blah");
-  MutableRouteActionAccessor foo = &envoy::api::v3alpha::route::RouteAction::mutable_host_rewrite;
+  MutableRouteActionAccessor foo = &envoy::api::v3alpha::route::RouteAction::mutable_host_rewrite_literal;
   static_cast<void>(foo);
 }
