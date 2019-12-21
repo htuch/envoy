@@ -46,11 +46,11 @@ absl::optional<TypeInformation> ApiTypeDb::getLatestTypeInformation(const std::s
   auto result = absl::make_optional<TypeInformation>(latest_type_name,
                                                      latest_type_desc->type_details().proto_path(),
                                                      latest_type_desc->type_details().enum_type());
-  for (const auto it : latest_type_desc->type_details().fields()) {
+  for (const auto it : latest_type_desc->type_details().names()) {
     if (it.second.deprecate()) {
-      result->field_renames_[it.first] = "hidden_envoy_deprecated_" + it.first;
+      result->renames_[it.first] = "hidden_envoy_deprecated_" + it.first;
     } else {
-      result->field_renames_[it.first] = it.second.rename();
+      result->renames_[it.first] = it.second.rename();
     }
   }
   return result;
