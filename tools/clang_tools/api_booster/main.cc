@@ -130,7 +130,7 @@ private:
       type_name = member_pointer_type_loc.getClassTInfo()->getType().getAsString();
       DEBUG_LOG(type_name);
       source_range =
-          absl::make_optional<clang::SourceRange>(member_pointer_type_loc.getClassTInfo()->getTypeLoc().getSourceRange());
+          absl::make_optional<clang::SourceRange>(member_pointer_type_loc.getNextTypeLoc().getSourceRange());
     }
     tryBoostType(type_name, source_range, source_manager, type_loc.getType()->getTypeClassName(),
                  false);
