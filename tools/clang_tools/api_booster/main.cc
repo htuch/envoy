@@ -127,7 +127,7 @@ private:
       source_range = absl::make_optional<clang::SourceRange>(unqual_type_loc.getSourceRange());
     } else if (unqual_type_loc.getTypeLocClass() == clang::TypeLoc::MemberPointer) {
       auto member_pointer_type_loc = type_loc.getAs<clang::MemberPointerTypeLoc>();
-      type_name = member_pointer_type_loc.getType().getAsString();
+      type_name = member_pointer_type_loc.getClassTInfo()->getType().getAsString();
       DEBUG_LOG(type_name);
       source_range =
           absl::make_optional<clang::SourceRange>(member_pointer_type_loc.getLocalSourceRange());
