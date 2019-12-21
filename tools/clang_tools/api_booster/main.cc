@@ -220,9 +220,11 @@ private:
     }
     // If we see something like Foo::mutable_bar (i.e. a function pointer), we
     // need to consider this for upgrade renaming.
+#if 0
     if (tryRenameMethod(*latest_type_info, decl_source_range, source_manager)) {
       return;
     }
+#endif
     // We need to map from envoy::type::matcher::StringMatcher::kRegex to
     // envoy::type::matcher::v3alpha::StringMatcher::kHiddenEnvoyDeprecatedRegex.
     const auto constant_rename =

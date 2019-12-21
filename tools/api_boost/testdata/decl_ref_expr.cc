@@ -28,7 +28,7 @@ public:
     ASSERT(Foo::kThreshold == Trigger::kThreshold);
     envoy::api::v2::Cluster_LbPolicy_Name(0);
     static_cast<void>(envoy::api::v2::Cluster::MAGLEV);
-    MutableStringClusterAccessor foo = &envoy::api::v2::Cluster::name;
+    MutableStringClusterAccessor foo = &envoy::api::v2::Cluster::mutable_name;
     static_cast<void>(foo);
   }
 
