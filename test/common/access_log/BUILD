@@ -2,7 +2,7 @@ licenses(["notice"])  # Apache 2
 
 load(
     "//bazel:envoy_build_system.bzl",
-    "envoy_cc_binary",
+    "envoy_cc_test_binary",
     "envoy_cc_fuzz_test",
     "envoy_cc_test",
     "envoy_package",
@@ -78,7 +78,7 @@ envoy_cc_test(
     ],
 )
 
-envoy_cc_binary(
+envoy_cc_test_binary(
     name = "access_log_formatter_speed_test",
     testonly = 1,
     srcs = ["access_log_formatter_speed_test.cc"],
