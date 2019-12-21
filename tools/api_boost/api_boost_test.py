@@ -22,7 +22,7 @@ TestCase = namedtuple('TestCase', ['name', 'description'])
 # List of test in the form [(file_name, explanation)]
 TESTS = list(
     map(lambda x: TestCase(*x), [
-        ('deprecate', 'Deprecation renaming'),
+        ('deprecate', 'Deprecations'),
         ('elaborated_type', 'ElaboratedTypeLoc type upgrades'),
         ('using_decl', 'UsingDecl upgrades for named types'),
         ('rename', 'Annotation-based renaming'),
