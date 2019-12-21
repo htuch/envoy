@@ -313,7 +313,7 @@ private:
   void tryBoostType(const std::string& type_name, clang::SourceLocation begin_loc, int length,
                     const clang::SourceManager& source_manager, absl::string_view debug_description,
                     bool requires_enum_truncation, bool validation_required = false) {
-    const auto latest_type_info = getLatestTypeInformationFromCType(type_name);
+    const auto latest_type_info = getLatestTypeInformationFromCType(absl::StartsWith(type_name, "::") ? type_name.substr(2) : type_name);
     // If this isn't a known API type, our work here is done.
     if (!latest_type_info) {
       return;
