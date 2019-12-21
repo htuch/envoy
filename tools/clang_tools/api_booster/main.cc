@@ -251,6 +251,7 @@ private:
           {"validate", 0},
       };
       const std::string& callee_name = direct_callee->getNameInfo().getName().getAsString();
+      DEBUG_LOG(absl::StrCat("callee_name ", callee_name));
       const auto arg = ValidateNameToArg.find(callee_name);
       // Sometimes we hit false positives because we aren't qualifying above.
       // TODO(htuch): fix this.
