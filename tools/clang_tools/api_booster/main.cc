@@ -247,7 +247,7 @@ private:
       const std::unordered_map<std::string, int> ValidateNameToArg = {
           {"loadFromYamlAndValidate", 1},
           {"loadFromFileAndValidate", 1},
-          {"downcastAndValidate", 0},
+          {"downcastAndValidate", -1},
           {"validate", 0},
       };
       const std::string& callee_name = direct_callee->getNameInfo().getName().getAsString();
@@ -256,11 +256,15 @@ private:
       // Sometimes we hit false positives because we aren't qualifying above.
       // TODO(htuch): fix this.
       if (arg != ValidateNameToArg.end() && arg->second < call_expr.getNumArgs()) {
-        const std::string type_name = call_expr.getArg(arg->second)
-                                          ->getType()
-                                          .getCanonicalType()
-                                          .getUnqualifiedType()
-                                          .getAsString();
+        const std::string type_name = arg >= 0 ? call_expr.getArg(arg->second)
+                                                     ->getType()
+                                                     .getCanonicalType()
+                                                     .getUnqualifiedType()
+                                                     .getAsString()
+                                               : call_expr.getCallReturnType()
+                                                     .getCanonicalType()
+                                                     .getUnqualifiedType()
+                                                     .getAsString();
         DEBUG_LOG(absl::StrCat("Validation header boosting ", type_name));
         tryBoostType(type_name, {}, source_manager, "validation invocation", true, true);
       }
