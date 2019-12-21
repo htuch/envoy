@@ -25,8 +25,14 @@ class TypeWhispererVisitor(visitor.Visitor):
 
   def VisitEnum(self, enum_proto, type_context):
     type_desc = self._types.types[type_context.name]
-    type_desc.next_version_upgrade = any(v.options.deprecated for v in enum_proto.value)
     type_desc.type_details.enum_type = True
+    for v in enum_proto.value:
+      if v.options.deprecated:
+        type_desc.next_version_upgrade = True
+        type_desc.type_details.names[v.name].deprecate = True
+      if v.options.HasExtension(migrate_pb2.field_migrate):
+        type_desc.type_details.names[v.name].rename = f.options.Extensions[
+            migrate_pb2.enum_migrate].rename
 
   def VisitMessage(self, msg_proto, type_context, nested_msgs, nested_enums):
     type_desc = self._types.types[type_context.name]
@@ -36,9 +42,9 @@ class TypeWhispererVisitor(visitor.Visitor):
         type_deps.add(f.type_name[1:])
       if f.options.deprecated:
         type_desc.next_version_upgrade = True
-        type_desc.type_details.fields[f.name].deprecate = True
+        type_desc.type_details.names[f.name].deprecate = True
       if f.options.HasExtension(migrate_pb2.field_migrate):
-        type_desc.type_details.fields[f.name].rename = f.options.Extensions[
+        type_desc.type_details.names[f.name].rename = f.options.Extensions[
             migrate_pb2.field_migrate].rename
 
     type_desc.type_dependencies.extend(type_deps)
