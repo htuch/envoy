@@ -416,6 +416,7 @@ private:
   // from the API type database.
   absl::optional<TypeInformation>
   getLatestTypeInformationFromCType(const std::string& c_type_name) {
+    DEBUG_LOG("getLatestTypeInformation " + c_type_name);
     // Ignore compound or non-API types.
     // TODO(htuch): this is all super hacky and not really right, we should be
     // removing qualifiers etc. to get to the underlying type name.
@@ -441,6 +442,7 @@ private:
       ::exit(1);
     }
 
+    DEBUG_LOG("No type information found");
     return {};
   }
 
