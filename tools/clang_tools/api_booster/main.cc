@@ -277,9 +277,8 @@ private:
     tryRenameMethod(*latest_type_info, source_range, source_manager);
   }
 
-  bool tryRenameMethod(const TypeInformation& type_name,
-                       clang::SourceRange source_rnage,
-                             const clang::SourceManager& source_manager) {
+  bool tryRenameMethod(const TypeInformation& type_name, clang::SourceRange source_range,
+                       const clang::SourceManager& source_manager) {
     const std::string method_name = getSourceText(source_range, source_manager);
     const auto method_rename = ProtoCxxUtils::renameMethod(method_name, latest_type_info.renames_);
     if (method_rename) {
@@ -291,7 +290,6 @@ private:
     }
     return false;
   }
-
 
   // Match callback for clang::ClassTemplateSpecializationDecl. An additional
   // place we need to look for .pb.validate.h reference is instantiation of
@@ -498,7 +496,9 @@ int main(int argc, const char** argv) {
 
   // Match on all template instantiations. We are interested in particular in
   // instantiations of factories where validation on protos is performed.
-  auto tmpl_matcher = clang::ast_matchers::classTemplateSpecializationDecl(clang::ast_matchers::matchesName(".*FactoryBase.*")).bind("tmpl");
+  auto tmpl_matcher = clang::ast_matchers::classTemplateSpecializationDecl(
+                          clang::ast_matchers::matchesName(".*FactoryBase.*"))
+                          .bind("tmpl");
   finder.addMatcher(tmpl_matcher, &api_booster);
 
   // Apply ApiBooster to AST matches. This will generate a set of replacements in
