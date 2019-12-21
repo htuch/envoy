@@ -120,7 +120,7 @@ private:
     // full namespace prefixed types. We probably will need to support more, in
     // particular if we want message-level type renaming. TODO(htuch): add more
     // supported AST TypeLoc classes as needed.
-    DEBUG_LOG("Type class " + type_loc.getType()->getTypeClassName());
+    DEBUG_LOG(absl::StrCat("Type class ", type_loc.getType()->getTypeClassName()));
     const bool rewrite =
         unqual_type_loc.getTypeLocClass() == clang::TypeLoc::Elaborated &&
         isEnvoyNamespace(getSourceText(unqual_type_loc.getSourceRange(), source_manager));
