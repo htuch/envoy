@@ -54,8 +54,10 @@ public:
     clang::SourceManager& source_manager = match_result.Context->getSourceManager();
     DEBUG_LOG("AST match callback dispatcher");
     for (const auto it : match_result.Nodes.getMap()) {
+      const std::string match_text = getSourceText(it.second.getSourceRange(), source_manager);
       DEBUG_LOG(absl::StrCat("  Result for ", it.first, " [",
-                             getSourceText(it.second.getSourceRange(), source_manager), "]"));
+                             match_text.size() > 50 ? match_text.substr(0, 50) + "..." : match_text,
+                             "]"));
     }
     if (const auto* type_loc = match_result.Nodes.getNodeAs<clang::TypeLoc>("type")) {
       onTypeLocMatch(*type_loc, source_manager);
@@ -313,7 +315,8 @@ private:
   void tryBoostType(const std::string& type_name, clang::SourceLocation begin_loc, int length,
                     const clang::SourceManager& source_manager, absl::string_view debug_description,
                     bool requires_enum_truncation, bool validation_required = false) {
-    const auto latest_type_info = getLatestTypeInformationFromCType(absl::StartsWith(type_name, "::") ? type_name.substr(2) : type_name);
+    const auto latest_type_info = getLatestTypeInformationFromCType(
+        absl::StartsWith(type_name, "::") ? type_name.substr(2) : type_name);
     // If this isn't a known API type, our work here is done.
     if (!latest_type_info) {
       return;
