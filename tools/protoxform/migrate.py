@@ -102,7 +102,7 @@ class UpgradeVisitor(visitor.Visitor):
 
   def VisitMessage(self, msg_proto, type_context, nested_msgs, nested_enums):
     upgraded_proto = copy.deepcopy(msg_proto)
-    if upgraded_proto.options.deprecated:
+    if upgraded_proto.options.deprecated and not self._envoy_internal_shadow:
       options.AddHideOption(upgraded_proto.options)
     options.SetVersioningAnnotation(upgraded_proto.options, type_context.name)
     # Mark deprecated fields as ready for deletion by protoxform.
