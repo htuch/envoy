@@ -15,13 +15,13 @@ public:
       break;
     }
     switch (config.trigger_oneof_case()) {
-    case Trigger::TriggerOneofCase::kThreshold:
+    case Trigger::kThreshold:
       break;
     default:
       break;
     }
     envoy::config::overload::v3alpha::ThresholdTrigger::default_instance();
-    ASSERT(envoy::config::overload::v3alpha::Trigger::TriggerOneofCase::kThreshold == Trigger::TriggerOneofCase::kThreshold);
+    ASSERT(envoy::config::overload::v3alpha::Trigger::TriggerOneofCase::kThreshold == Trigger::kThreshold);
     ASSERT(Foo::kThreshold == Trigger::kThreshold);
     envoy::api::v3alpha::Cluster::LbPolicy_Name(0);
     static_cast<void>(envoy::api::v3alpha::Cluster::MAGLEV);
