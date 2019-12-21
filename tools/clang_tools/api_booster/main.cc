@@ -197,7 +197,7 @@ private:
       return;
     }
     const auto constant_rename =
-        ProtoCxxUtils::renameConstant(decl_name, latest_type_info->field_renames_);
+        ProtoCxxUtils::renameConstant(decl_name, latest_type_info->renames_);
     if (constant_rename) {
       const clang::SourceRange decl_source_range = decl_ref_expr.getNameInfo().getSourceRange();
       const clang::tooling::Replacement constant_replacement(
@@ -252,7 +252,7 @@ private:
     DEBUG_LOG(
         absl::StrCat("Matched member call expr on ", type_name, " with method ", method_name));
     const auto method_rename =
-        ProtoCxxUtils::renameMethod(method_name, latest_type_info->field_renames_);
+        ProtoCxxUtils::renameMethod(method_name, latest_type_info->renames_);
     if (method_rename) {
       const clang::tooling::Replacement method_replacement(
           source_manager, source_range.getBegin(), sourceRangeLength(source_range, source_manager),
