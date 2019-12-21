@@ -199,6 +199,7 @@ private:
     if (!latest_type_info) {
       return;
     }
+    const clang::SourceRange decl_source_range = decl_ref_expr.getNameInfo().getSourceRange();
     // Deprecated enum constants need to be upgraded.
     if (latest_type_info->enum_type_) {
       const auto enum_value_rename =
@@ -212,12 +213,16 @@ private:
       }
       return;
     }
+    // If we see something like Foo::mutable_bar (i.e. a function pointer), we
+    // need to consider this for upgrade renaming.
+    if (tryRenameMethod(*latest_type_info, decl_source_range, source_manager)) {
+      return;
+    }
     // We need to map from envoy::type::matcher::StringMatcher::kRegex to
     // envoy::type::matcher::v3alpha::StringMatcher::kHiddenEnvoyDeprecatedRegex.
     const auto constant_rename =
         ProtoCxxUtils::renameConstant(decl_name, latest_type_info->renames_);
     if (constant_rename) {
-      const clang::SourceRange decl_source_range = decl_ref_expr.getNameInfo().getSourceRange();
       const clang::tooling::Replacement constant_replacement(
           source_manager, decl_source_range.getBegin(),
           sourceRangeLength(decl_source_range, source_manager), *constant_rename);
@@ -269,14 +274,24 @@ private:
     const std::string method_name = getSourceText(source_range, source_manager);
     DEBUG_LOG(
         absl::StrCat("Matched member call expr on ", type_name, " with method ", method_name));
-    const auto method_rename = ProtoCxxUtils::renameMethod(method_name, latest_type_info->renames_);
+    tryRenameMethod(*latest_type_info, source_range, source_manager);
+  }
+
+  bool tryRenameMethod(const TypeInformation& type_name,
+                       clang::SourceRange source_rnage,
+                             const clang::SourceManager& source_manager) {
+    const std::string method_name = getSourceText(source_range, source_manager);
+    const auto method_rename = ProtoCxxUtils::renameMethod(method_name, latest_type_info.renames_);
     if (method_rename) {
       const clang::tooling::Replacement method_replacement(
           source_manager, source_range.getBegin(), sourceRangeLength(source_range, source_manager),
           *method_rename);
       insertReplacement(method_replacement);
+      return true;
     }
+    return false;
   }
+
 
   // Match callback for clang::ClassTemplateSpecializationDecl. An additional
   // place we need to look for .pb.validate.h reference is instantiation of
