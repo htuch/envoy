@@ -169,7 +169,7 @@ private:
       if (absl::EndsWith(decl_name, enum_generated_method_suffix)) {
         // Remove trailing suffix from reference for replacement range and type
         // name purposes.
-        const clang::SourceLocation begin_loc = decl_ref_expr.getBeginLoc();
+        const clang::SourceLocation begin_loc = source_manager.getSpellingLoc(decl_ref_expr.getBeginLoc());
         const std::string type_name_with_suffix =
             getSourceText(decl_ref_expr.getSourceRange(), source_manager);
         const std::string type_name = type_name_with_suffix.substr(
