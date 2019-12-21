@@ -126,11 +126,14 @@ private:
         isEnvoyNamespace(getSourceText(unqual_type_loc.getSourceRange(), source_manager))) {
       source_range = absl::make_optional<clang::SourceRange>(unqual_type_loc.getSourceRange());
     } else if (unqual_type_loc.getTypeLocClass() == clang::TypeLoc::MemberPointer) {
+      // This doesn't handle namespace qualification, WiP.
+#if 0
       auto member_pointer_type_loc = type_loc.getAs<clang::MemberPointerTypeLoc>();
       type_name = member_pointer_type_loc.getClassTInfo()->getType().getAsString();
       DEBUG_LOG(type_name);
       source_range =
           absl::make_optional<clang::SourceRange>(member_pointer_type_loc.getSigilLoc());
+#endif
     }
     tryBoostType(type_name, source_range, source_manager, type_loc.getType()->getTypeClassName(),
                  false);
