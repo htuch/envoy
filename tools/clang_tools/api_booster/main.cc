@@ -56,7 +56,7 @@ public:
     for (const auto it : match_result.Nodes.getMap()) {
       const std::string match_text = getSourceText(it.second.getSourceRange(), source_manager);
       DEBUG_LOG(absl::StrCat("  Result for ", it.first, " [",
-                             match_text.size() > 50 ? match_text.substr(0, 50) + "..." : match_text,
+                             match_text.size() > 250 ? match_text.substr(0, 250) + "..." : match_text,
                              "]"));
     }
     if (const auto* type_loc = match_result.Nodes.getNodeAs<clang::TypeLoc>("type")) {
