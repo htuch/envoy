@@ -151,6 +151,7 @@ private:
       return;
     }
     const std::string decl_name = decl_ref_expr.getNameInfo().getAsString();
+    DEBUG_LOG("decl_name " + decl_name);
     // There are generated methods to stringify/parse/validate enum values,
     // these need special treatment as they look like types with special
     // suffices.
