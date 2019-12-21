@@ -175,23 +175,16 @@ private:
                            decl_ref_expr.getQualifierLoc().getEndLoc().getLocWithOffset(-1));
     // Only try to boost type if it's explicitly an Envoy qualified type.
     const std::string source_type_name = getSourceText(source_range, source_manager);
-    const std::string ast_type_name =
-        decl_ref_expr.getDecl()->getType().getCanonicalType().getUnqualifiedType().getAsString();
+    const clang::QualType ast_type = decl_ref_expr.getDecl()->getType().getCanonicalType().getUnqualifiedType();
+    const std::string ast_type_name = ast_type.getAsString();
     if (isEnvoyNamespace(source_type_name)) {
       // Generally we pull the type from the named entity's declaration type,
       // since this allows us to map from things like envoy::type::HTTP2 to the
       // underlying fully qualified envoy::type::CodecClientType::HTTP2 prior to
-      // API type database lookup. However, for the generated static methods, we
-      // don't want to deal with lookup via the function type, so we do the fixup
-      // here.
-      const std::set<std::string> ProtoStaticGeneratedMethod = {
-          "descriptor",
-          "default_instance",
-      };
-      const bool is_proto_static_generated_method =
-          ProtoStaticGeneratedMethod.count(decl_name) != 0;
-      const std::string type_name =
-          is_proto_static_generated_method ? source_type_name : ast_type_name;
+      // API type database lookup. However, for the generated static methods or
+      // field accessors, we don't want to deal with lookup via the function
+      // type, so we use the source text directly.
+      const std::string type_name = ast_type.isPODType() ? ast_type_name : source_type_name;
       tryBoostType(type_name, source_range, source_manager, "DeclRefExpr", true);
     }
     const auto latest_type_info = getLatestTypeInformationFromCType(ast_type_name);
