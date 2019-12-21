@@ -260,7 +260,7 @@ private:
                                           .getCanonicalType()
                                           .getUnqualifiedType()
                                           .getAsString();
-        DEBUG_LOG(absl::Strcat("Validation header boosting ", type_name));
+        DEBUG_LOG(absl::StrCat("Validation header boosting ", type_name));
         tryBoostType(type_name, {}, source_manager, "validation invocation", true, true);
       }
     }
