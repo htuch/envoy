@@ -280,6 +280,7 @@ private:
   bool tryRenameMethod(const TypeInformation& type_info, clang::SourceRange source_range,
                        const clang::SourceManager& source_manager) {
     const std::string method_name = getSourceText(source_range, source_manager);
+    DEBUG_LOG(absl::StrCat("Checking for rename of ", method_name));
     const auto method_rename = ProtoCxxUtils::renameMethod(method_name, type_info.renames_);
     if (method_rename) {
       const clang::tooling::Replacement method_replacement(
