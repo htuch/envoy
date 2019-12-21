@@ -478,11 +478,9 @@ int main(int argc, const char** argv) {
           .bind("member_call_expr");
   finder.addMatcher(member_call_expr, &api_booster);
 
-  // Match on all template instantiations.We are interested in particular in
+  // Match on all template instantiations. We are interested in particular in
   // instantiations of factories where validation on protos is performed.
-  auto tmpl_matcher = clang::ast_matchers::classTemplateSpecializationDecl(
-                          clang::ast_matchers::isExpansionInMainFile())
-                          .bind("tmpl");
+  auto tmpl_matcher = clang::ast_matchers::classTemplateSpecializationDecl().bind("tmpl");
   finder.addMatcher(tmpl_matcher, &api_booster);
 
   // Apply ApiBooster to AST matches. This will generate a set of replacements in
