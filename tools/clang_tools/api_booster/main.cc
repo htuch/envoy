@@ -277,7 +277,7 @@ private:
     tryRenameMethod(*latest_type_info, source_range, source_manager);
   }
 
-  bool tryRenameMethod(const TypeInformation& type_information, clang::SourceRange source_range,
+  bool tryRenameMethod(const TypeInformation& type_info, clang::SourceRange source_range,
                        const clang::SourceManager& source_manager) {
     const std::string method_name = getSourceText(source_range, source_manager);
     const auto method_rename = ProtoCxxUtils::renameMethod(method_name, type_info.renames_);
