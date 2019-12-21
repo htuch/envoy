@@ -221,7 +221,7 @@ envoy_cc_test(
     deps = ["//source/common/common:callback_impl_lib"],
 )
 
-envoy_cc_binary(
+envoy_cc_test_binary(
     name = "utility_speed_test",
     srcs = ["utility_speed_test.cc"],
     external_deps = [
