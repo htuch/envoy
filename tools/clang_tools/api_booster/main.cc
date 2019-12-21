@@ -112,22 +112,26 @@ private:
   // source. If we have a match on type, we should track the corresponding .pb.h
   // and attempt to upgrade.
   void onTypeLocMatch(const clang::TypeLoc& type_loc, const clang::SourceManager& source_manager) {
-    const std::string type_name =
+    std::string type_name =
         type_loc.getType().getCanonicalType().getUnqualifiedType().getAsString();
     // Remove qualifiers, e.g. const.
     const clang::UnqualTypeLoc unqual_type_loc = type_loc.getUnqualifiedLoc();
+    DEBUG_LOG(absl::StrCat("Type class ", type_loc.getType()->getTypeClassName()));
     // Today we are only smart enought to rewrite ElaborateTypeLoc, which are
     // full namespace prefixed types. We probably will need to support more, in
     // particular if we want message-level type renaming. TODO(htuch): add more
     // supported AST TypeLoc classes as needed.
-    DEBUG_LOG(absl::StrCat("Type class ", type_loc.getType()->getTypeClassName()));
-    const bool rewrite =
-        unqual_type_loc.getTypeLocClass() == clang::TypeLoc::Elaborated &&
-        isEnvoyNamespace(getSourceText(unqual_type_loc.getSourceRange(), source_manager));
-    tryBoostType(unqual_type_loc.getType().getCanonicalType().getAsString(),
-                 rewrite ? absl::make_optional<clang::SourceRange>(unqual_type_loc.getSourceRange())
-                         : absl::nullopt,
-                 source_manager, type_loc.getType()->getTypeClassName(), false);
+    if (unqual_type_loc.getTypeLocClass() == clang::TypeLoc::Elaborated &&
+        isEnvoyNamespace(getSourceText(unqual_type_loc.getSourceRange(), source_manager))) {
+      source_range = absl::make_optional<clang::SourceRange>(unqual_type_loc.getSourceRange());
+    } else if (unqual_type_loc.getTypeLocClass() == clang::TypeLoc::MemberPointerTypeLoc) {
+      auto member_pointer_type_loc = type_loc.getAs<clang::MemberPointerTypeLoc>();
+      type_name = member_pointer_type_loc.getType().getAsString();
+      source_range =
+          absl::make_optional<clang::SourceRange>(member_pointer_type_loc.getLocalSourceRange());
+    }
+    tryBoostType(type_name, source_range, source_manager, type_loc.getType()->getTypeClassName(),
+                 false);
   }
 
   // Match callback for clang::UsingDecl. These are 'using' aliases for API type
@@ -144,8 +148,7 @@ private:
 
   // Match callback for clang::DeclRefExpr. These occur when enums constants,
   // e.g. foo::bar::kBaz, appear in the source.
-  void onDeclRefExprMatch(const clang::DeclRefExpr& decl_ref_expr,
-                          const clang::ASTContext& context,
+  void onDeclRefExprMatch(const clang::DeclRefExpr& decl_ref_expr, const clang::ASTContext& context,
                           const clang::SourceManager& source_manager) {
     // We don't need to consider non-namespace qualified DeclRefExprfor now (no
     // renaming support yet).
@@ -177,7 +180,8 @@ private:
                            decl_ref_expr.getQualifierLoc().getEndLoc().getLocWithOffset(-1));
     // Only try to boost type if it's explicitly an Envoy qualified type.
     const std::string source_type_name = getSourceText(source_range, source_manager);
-    const clang::QualType ast_type = decl_ref_expr.getDecl()->getType().getCanonicalType().getUnqualifiedType();
+    const clang::QualType ast_type =
+        decl_ref_expr.getDecl()->getType().getCanonicalType().getUnqualifiedType();
     const std::string ast_type_name = ast_type.getAsString();
     if (isEnvoyNamespace(source_type_name)) {
       // Generally we pull the type from the named entity's declaration type,
