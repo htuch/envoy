@@ -325,6 +325,23 @@ private:
                                         .getAsString();
       tryBoostType(type_name, {}, source_manager, "FactoryBase template", true, true);
     }
+    if (tmpl_type_name == "FactoryBase<type-parameter-0-0, type-parameter-0-1>") {
+      const std::string type_name_0 = tmpl.getTemplateArgs()
+                                        .get(0)
+                                        .getAsType()
+                                        .getCanonicalType()
+                                        .getUnqualifiedType()
+                                        .getAsString();
+      tryBoostType(type_name_0, {}, source_manager, "FactoryBase template", true, true);
+      const std::string type_name_1 = tmpl.getTemplateArgs()
+                                        .get(1)
+                                        .getAsType()
+                                        .getCanonicalType()
+                                        .getUnqualifiedType()
+                                        .getAsString();
+      tryBoostType(type_name_1, {}, source_manager, "FactoryBase template", true, true);
+
+    }
   }
 
   // Attempt to boost a given type and rewrite the given source range.
