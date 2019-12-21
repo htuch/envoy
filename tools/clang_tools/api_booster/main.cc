@@ -256,7 +256,7 @@ private:
       // Sometimes we hit false positives because we aren't qualifying above.
       // TODO(htuch): fix this.
       if (arg != ValidateNameToArg.end() && arg->second < call_expr.getNumArgs()) {
-        const std::string type_name = arg >= 0 ? call_expr.getArg(arg->second)
+        const std::string type_name = arg->second >= 0 ? call_expr.getArg(arg->second)
                                                      ->getType()
                                                      .getCanonicalType()
                                                      .getUnqualifiedType()
