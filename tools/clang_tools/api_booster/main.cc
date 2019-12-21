@@ -125,7 +125,7 @@ private:
     if (unqual_type_loc.getTypeLocClass() == clang::TypeLoc::Elaborated &&
         isEnvoyNamespace(getSourceText(unqual_type_loc.getSourceRange(), source_manager))) {
       source_range = absl::make_optional<clang::SourceRange>(unqual_type_loc.getSourceRange());
-    } else if (unqual_type_loc.getTypeLocClass() == clang::TypeLoc::MemberPointerType) {
+    } else if (unqual_type_loc.getTypeLocClass() == clang::TypeLoc::MemberPointer) {
       auto member_pointer_type_loc = type_loc.getAs<clang::MemberPointerTypeLoc>();
       type_name = member_pointer_type_loc.getType().getAsString();
       source_range =
