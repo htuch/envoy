@@ -170,25 +170,30 @@ private:
     const clang::SourceRange source_range =
         clang::SourceRange(decl_ref_expr.getQualifierLoc().getBeginLoc(),
                            decl_ref_expr.getQualifierLoc().getEndLoc().getLocWithOffset(-1));
-    // Generally we pull the type from the named entity's declaration type,
-    // since this allows us to map from things like envoy::type::HTTP2 to the
-    // underlying fully qualified envoy::type::CodecClientType::HTTP2 prior to
-    // API type database lookup. However, for the generated static methods, we
-    // don't want to deal with lookup via the function type, so we do the fixup
-    // here.
-    const std::set<std::string> ProtoStaticGeneratedMethod = {
-        "descriptor",
-        "default_instance",
-    };
-    const bool is_proto_static_generated_method = ProtoStaticGeneratedMethod.count(decl_name) != 0;
-    const std::string type_name = is_proto_static_generated_method
-                                      ? getSourceText(source_range, source_manager)
-                                      : decl_ref_expr.getDecl()
-                                            ->getType()
-                                            .getCanonicalType()
-                                            .getUnqualifiedType()
-                                            .getAsString();
-    tryBoostType(type_name, source_range, source_manager, "DeclRefExpr", true);
+    const std::string source_type_name = getSourceText(source_range, source_manager);
+    // Only try to boost type if it's explicitly an Envoy qualified type.
+    if (isEnvoyNamespace(source_type_name)) {
+      // Generally we pull the type from the named entity's declaration type,
+      // since this allows us to map from things like envoy::type::HTTP2 to the
+      // underlying fully qualified envoy::type::CodecClientType::HTTP2 prior to
+      // API type database lookup. However, for the generated static methods, we
+      // don't want to deal with lookup via the function type, so we do the fixup
+      // here.
+      const std::set<std::string> ProtoStaticGeneratedMethod = {
+          "descriptor",
+          "default_instance",
+      };
+      const bool is_proto_static_generated_method =
+          ProtoStaticGeneratedMethod.count(decl_name) != 0;
+      const std::string type_name = is_proto_static_generated_method
+                                        ? getSourceText(source_range, source_manager)
+                                        : decl_ref_expr.getDecl()
+                                              ->getType()
+                                              .getCanonicalType()
+                                              .getUnqualifiedType()
+                                              .getAsString();
+      tryBoostType(type_name, source_range, source_manager, "DeclRefExpr", true);
+    }
     const auto latest_type_info = getLatestTypeInformationFromCType(type_name);
     // In some cases we need to upgrade the name the DeclRefExpr points at. If
     // this isn't a known API type, our work here is done.
