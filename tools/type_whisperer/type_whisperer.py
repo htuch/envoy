@@ -31,7 +31,7 @@ class TypeWhispererVisitor(visitor.Visitor):
         type_desc.next_version_upgrade = True
         type_desc.type_details.names[v.name].deprecate = True
       if v.options.HasExtension(migrate_pb2.enum_value_migrate):
-        type_desc.type_details.names[v.name].rename = f.options.Extensions[
+        type_desc.type_details.names[v.name].rename = v.options.Extensions[
             migrate_pb2.enum_value_migrate].rename
 
   def VisitMessage(self, msg_proto, type_context, nested_msgs, nested_enums):
