@@ -170,8 +170,10 @@ private:
     const clang::SourceRange source_range =
         clang::SourceRange(decl_ref_expr.getQualifierLoc().getBeginLoc(),
                            decl_ref_expr.getQualifierLoc().getEndLoc().getLocWithOffset(-1));
-    const std::string source_type_name = getSourceText(source_range, source_manager);
     // Only try to boost type if it's explicitly an Envoy qualified type.
+    const std::string source_type_name = getSourceText(source_range, source_manager);
+    const std::string ast_type_name =
+        decl_ref_expr.getDecl()->getType().getCanonicalType().getUnqualifiedType().getAsString();
     if (isEnvoyNamespace(source_type_name)) {
       // Generally we pull the type from the named entity's declaration type,
       // since this allows us to map from things like envoy::type::HTTP2 to the
@@ -185,16 +187,11 @@ private:
       };
       const bool is_proto_static_generated_method =
           ProtoStaticGeneratedMethod.count(decl_name) != 0;
-      const std::string type_name = is_proto_static_generated_method
-                                        ? getSourceText(source_range, source_manager)
-                                        : decl_ref_expr.getDecl()
-                                              ->getType()
-                                              .getCanonicalType()
-                                              .getUnqualifiedType()
-                                              .getAsString();
+      const std::string type_name =
+          is_proto_static_generated_method ? source_type_name : ast_type_name;
       tryBoostType(type_name, source_range, source_manager, "DeclRefExpr", true);
     }
-    const auto latest_type_info = getLatestTypeInformationFromCType(type_name);
+    const auto latest_type_info = getLatestTypeInformationFromCType(ast_type_name);
     // In some cases we need to upgrade the name the DeclRefExpr points at. If
     // this isn't a known API type, our work here is done.
     if (!latest_type_info) {
