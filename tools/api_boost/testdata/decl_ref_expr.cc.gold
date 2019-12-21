@@ -23,6 +23,7 @@ public:
     envoy::config::overload::v3alpha::ThresholdTrigger::default_instance();
     ASSERT(envoy::config::overload::v3alpha::Trigger::TriggerOneofCase::kThreshold == Trigger::TriggerOneofCase::kThreshold);
     envoy::api::v3alpha::Cluster::LbPolicy_Name(0);
-    static_cast<void>(envoy::api::v3alpha::Cluster::ORIGINAL_DST_LB);
+    static_cast<void>(envoy::api::v3alpha::Cluster::MAGLEV);
+    static_cast<void>(envoy::api::v3alpha::Cluster::hidden_envoy_deprecated_ORIGINAL_DST_LB);
   }
 };
