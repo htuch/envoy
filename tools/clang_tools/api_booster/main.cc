@@ -212,7 +212,7 @@ private:
       if (enum_value_rename) {
         const clang::SourceRange decl_source_range = decl_ref_expr.getNameInfo().getSourceRange();
         const clang::tooling::Replacement enum_value_replacement(
-            source_manager, decl_source_range.getBegin(),
+            source_manager, source_manager.getSpellingLoc(decl_source_range.getBegin()),
             sourceRangeLength(decl_source_range, source_manager), *enum_value_rename);
         insertReplacement(enum_value_replacement);
       }
