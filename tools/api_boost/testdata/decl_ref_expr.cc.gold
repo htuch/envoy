@@ -5,6 +5,9 @@
 
 using envoy::config::overload::v3alpha::Trigger;
 
+using envoy::api::v3alpha::Cluster;
+using MutableStringClusterAccessor = std::string* (Cluster::*)();
+
 class ThresholdTriggerImpl {
 public:
   ThresholdTriggerImpl(const envoy::config::overload::v3alpha::Trigger& config) {
@@ -25,6 +28,8 @@ public:
     ASSERT(Foo::kThreshold == Trigger::kThreshold);
     envoy::api::v3alpha::Cluster::LbPolicy_Name(0);
     static_cast<void>(envoy::api::v3alpha::Cluster::MAGLEV);
+    MutableStringClusterAccessor foo = &envoy::api::v3alpha::Cluster::mutable_name;
+    static_cast<void>(foo);
   }
 
   using Foo = envoy::config::overload::v3alpha::Trigger;
