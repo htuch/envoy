@@ -318,7 +318,7 @@ private:
                                            .getCanonicalType()
                                            .getAsString();
     DEBUG_LOG(absl::StrCat("Template name ", tmpl_type_name));
-    if (tmpl_type_name == "FactoryBase<type-parameter-0-0>") {
+    if (absl::EndsWith(tmpl_type_name, "FactoryBase<type-parameter-0-0>")) {
       const std::string type_name = tmpl.getTemplateArgs()
                                         .get(0)
                                         .getAsType()
