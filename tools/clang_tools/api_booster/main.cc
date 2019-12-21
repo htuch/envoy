@@ -69,7 +69,7 @@ public:
     }
     if (const auto* decl_ref_expr =
             match_result.Nodes.getNodeAs<clang::DeclRefExpr>("decl_ref_expr")) {
-      onDeclRefExprMatch(*decl_ref_expr, source_manager);
+      onDeclRefExprMatch(*decl_ref_expr, *match_result.Context, source_manager);
       return;
     }
     if (const auto* call_expr = match_result.Nodes.getNodeAs<clang::CallExpr>("call_expr")) {
@@ -144,6 +144,7 @@ private:
   // Match callback for clang::DeclRefExpr. These occur when enums constants,
   // e.g. foo::bar::kBaz, appear in the source.
   void onDeclRefExprMatch(const clang::DeclRefExpr& decl_ref_expr,
+                          const clang::ASTContext& context,
                           const clang::SourceManager& source_manager) {
     // We don't need to consider non-namespace qualified DeclRefExprfor now (no
     // renaming support yet).
