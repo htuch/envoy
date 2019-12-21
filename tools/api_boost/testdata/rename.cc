@@ -4,5 +4,5 @@ void test() {
   envoy::api::v2::route::RouteAction route_action;
   route_action.host_rewrite();
   route_action.set_host_rewrite("blah");
-  static_void<void>(route_action.set_host_rewrite);
+  static_void<void>(&route_action.set_host_rewrite);
 }
