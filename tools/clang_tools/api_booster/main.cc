@@ -255,17 +255,18 @@ private:
       const auto arg = ValidateNameToArg.find(callee_name);
       // Sometimes we hit false positives because we aren't qualifying above.
       // TODO(htuch): fix this.
-      if (arg != ValidateNameToArg.end() && arg->second < static_cast<int>(call_expr.getNumArgs())) {
+      if (arg != ValidateNameToArg.end() &&
+          arg->second < static_cast<int>(call_expr.getNumArgs())) {
         const std::string type_name = arg->second >= 0 ? call_expr.getArg(arg->second)
-                                                     ->getType()
-                                                     .getCanonicalType()
-                                                     .getUnqualifiedType()
-                                                     .getAsString()
-                                               : call_expr.getCallReturnType(context)
-                                                     .getNonReferenceType()
-                                                     .getCanonicalType()
-                                                     .getUnqualifiedType()
-                                                     .getAsString();
+                                                             ->getType()
+                                                             .getCanonicalType()
+                                                             .getUnqualifiedType()
+                                                             .getAsString()
+                                                       : call_expr.getCallReturnType(context)
+                                                             .getNonReferenceType()
+                                                             .getCanonicalType()
+                                                             .getUnqualifiedType()
+                                                             .getAsString();
         DEBUG_LOG(absl::StrCat("Validation header boosting ", type_name));
         tryBoostType(type_name, {}, source_manager, "validation invocation", true, true);
       }
@@ -283,8 +284,9 @@ private:
     if (!latest_type_info) {
       return;
     }
-    const clang::SourceRange source_range = {member_call_expr.getExprLoc(),
-                                             member_call_expr.getExprLoc()};
+    const clang::SourceRange source_range = {
+        source_manager.getSpellingLoc(member_call_expr.getExprLoc()),
+        source_manager.getSpellingLoc(member_call_expr.getExprLoc())};
     const std::string method_name = getSourceText(source_range, source_manager);
     DEBUG_LOG(
         absl::StrCat("Matched member call expr on ", type_name, " with method ", method_name));
@@ -327,20 +329,19 @@ private:
     }
     if (tmpl_type_name == "FactoryBase<type-parameter-0-0, type-parameter-0-1>") {
       const std::string type_name_0 = tmpl.getTemplateArgs()
-                                        .get(0)
-                                        .getAsType()
-                                        .getCanonicalType()
-                                        .getUnqualifiedType()
-                                        .getAsString();
+                                          .get(0)
+                                          .getAsType()
+                                          .getCanonicalType()
+                                          .getUnqualifiedType()
+                                          .getAsString();
       tryBoostType(type_name_0, {}, source_manager, "FactoryBase template", true, true);
       const std::string type_name_1 = tmpl.getTemplateArgs()
-                                        .get(1)
-                                        .getAsType()
-                                        .getCanonicalType()
-                                        .getUnqualifiedType()
-                                        .getAsString();
+                                          .get(1)
+                                          .getAsType()
+                                          .getCanonicalType()
+                                          .getUnqualifiedType()
+                                          .getAsString();
       tryBoostType(type_name_1, {}, source_manager, "FactoryBase template", true, true);
-
     }
   }
 
