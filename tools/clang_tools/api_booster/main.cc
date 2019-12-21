@@ -73,7 +73,7 @@ public:
       return;
     }
     if (const auto* call_expr = match_result.Nodes.getNodeAs<clang::CallExpr>("call_expr")) {
-      onCallExprMatch(*call_expr, source_manager);
+      onCallExprMatch(*call_expr, *match_result.Context, source_manager);
       return;
     }
     if (const auto* member_call_expr =
@@ -240,7 +240,7 @@ private:
   // Match callback clang::CallExpr. We don't need to rewrite, but if it's something like
   // loadFromYamlAndValidate, we might need to look at the argument type to
   // figure out any corresponding .pb.validate.h we require.
-  void onCallExprMatch(const clang::CallExpr& call_expr,
+  void onCallExprMatch(const clang::CallExpr& call_expr, const clang::Context& context;
                        const clang::SourceManager& source_manager) {
     auto* direct_callee = call_expr.getDirectCallee();
     if (direct_callee != nullptr) {
@@ -261,7 +261,7 @@ private:
                                                      .getCanonicalType()
                                                      .getUnqualifiedType()
                                                      .getAsString()
-                                               : call_expr.getCallReturnType()
+                                               : call_expr.getCallReturnType(context)
                                                      .getCanonicalType()
                                                      .getUnqualifiedType()
                                                      .getAsString();
