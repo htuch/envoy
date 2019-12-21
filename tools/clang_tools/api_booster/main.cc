@@ -189,13 +189,27 @@ private:
                                             .getUnqualifiedType()
                                             .getAsString();
     tryBoostType(type_name, source_range, source_manager, "DeclRefExpr", true);
-    // We need to map from envoy::type::matcher::StringMatcher::kRegex to
-    // envoy::type::matcher::v3alpha::StringMatcher::kHiddenEnvoyDeprecatedRegex.
     const auto latest_type_info = getLatestTypeInformationFromCType(type_name);
-    // If this isn't a known API type, our work here is done.
+    // In some cases we need to upgrade the name the DeclRefExpr points at. If
+    // this isn't a known API type, our work here is done.
     if (!latest_type_info) {
       return;
     }
+    // Deprecated enum constants need to be upgraded.
+    if (latest_type_info.enum_type_) {
+      const auto enum_value_rename =
+          ProtoCxxUtils::renameEnumValue(decl_name, latest_type_info->renames_);
+      if (enum_value_rename) {
+        const clang::SourceRange decl_source_range = decl_ref_expr.getNameInfo().getSourceRange();
+        const clang::tooling::Replacement enum_value_replacement(
+            source_manager, decl_source_range.getBegin(),
+            sourceRangeLength(decl_source_range, source_manager), *enum_value_rename);
+        insertReplacement(enum_value_replacement);
+      }
+      return;
+    }
+    // We need to map from envoy::type::matcher::StringMatcher::kRegex to
+    // envoy::type::matcher::v3alpha::StringMatcher::kHiddenEnvoyDeprecatedRegex.
     const auto constant_rename =
         ProtoCxxUtils::renameConstant(decl_name, latest_type_info->renames_);
     if (constant_rename) {
@@ -251,8 +265,7 @@ private:
     const std::string method_name = getSourceText(source_range, source_manager);
     DEBUG_LOG(
         absl::StrCat("Matched member call expr on ", type_name, " with method ", method_name));
-    const auto method_rename =
-        ProtoCxxUtils::renameMethod(method_name, latest_type_info->renames_);
+    const auto method_rename = ProtoCxxUtils::renameMethod(method_name, latest_type_info->renames_);
     if (method_rename) {
       const clang::tooling::Replacement method_replacement(
           source_manager, source_range.getBegin(), sourceRangeLength(source_range, source_manager),
@@ -327,7 +340,8 @@ private:
     const clang::tooling::Replacement type_replacement(
         source_manager, begin_loc, length,
         ProtoCxxUtils::protoToCxxType(latest_type_info->type_name_, qualified,
-                                      latest_type_info->enum_type_ && requires_enum_truncation) + case_residual);
+                                      latest_type_info->enum_type_ && requires_enum_truncation) +
+            case_residual);
     insertReplacement(type_replacement);
   }
 
