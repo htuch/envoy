@@ -262,7 +262,7 @@ private:
                                                      .getUnqualifiedType()
                                                      .getAsString()
                                                : call_expr.getCallReturnType(context)
-                                                     .getNonReferenceType().
+                                                     .getNonReferenceType()
                                                      .getCanonicalType()
                                                      .getUnqualifiedType()
                                                      .getAsString();
