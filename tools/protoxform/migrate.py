@@ -137,7 +137,7 @@ class UpgradeVisitor(visitor.Visitor):
       if v.options.deprecated:
         # We need special handling for the zero field, as proto3 needs some value
         # here.
-        if v.number == 0:
+        if v.number == 0 and not self._envoy_internal_shadow:
           v.name = 'DEPRECATED_AND_UNAVAILABLE_DO_NOT_USE'
         else:
           # Mark deprecated enum values as ready for deletion by protoxform.
