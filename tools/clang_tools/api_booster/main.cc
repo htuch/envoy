@@ -185,7 +185,7 @@ private:
       // API type database lookup. However, for the generated static methods or
       // field accessors, we don't want to deal with lookup via the function
       // type, so we use the source text directly.
-      const std::string type_name = ast_type.isPODType() ? ast_type_name : source_type_name;
+      const std::string type_name = ast_type.isPODType(context) ? ast_type_name : source_type_name;
       tryBoostType(type_name, source_range, source_manager, "DeclRefExpr", true);
     }
     const auto latest_type_info = getLatestTypeInformationFromCType(ast_type_name);
