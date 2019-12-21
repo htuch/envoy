@@ -112,6 +112,7 @@ private:
   // source. If we have a match on type, we should track the corresponding .pb.h
   // and attempt to upgrade.
   void onTypeLocMatch(const clang::TypeLoc& type_loc, const clang::SourceManager& source_manager) {
+    absl::optional<clang::SourceRange> source_range;
     std::string type_name =
         type_loc.getType().getCanonicalType().getUnqualifiedType().getAsString();
     // Remove qualifiers, e.g. const.
