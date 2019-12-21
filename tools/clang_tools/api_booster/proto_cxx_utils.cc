@@ -103,7 +103,7 @@ ProtoCxxUtils::renameConstant(absl::string_view constant_name,
 absl::optional<std::string>
 ProtoCxxUtils::renameEnumValue(absl::string_view enum_value_name,
                                const std::unordered_map<std::string, std::string> renames) {
-  const auto it = renames.find(enum_value_name);
+  const auto it = renames.find({enum_value_name});
   if (it == renames.cend()) {
     return {};
   }
