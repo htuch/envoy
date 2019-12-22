@@ -33,7 +33,7 @@ XRayTracerFactory::createHttpTracerTyped(const envoy::config::trace::v2alpha::XR
   }
 
   if (proto_config.daemon_endpoint().protocol() !=
-      envoy::api::v2::core::SocketAddress::Protocol::SocketAddress_Protocol_UDP) {
+      envoy::api::v2::core::SocketAddress::UDP) {
     throw EnvoyException("X-Ray daemon endpoint must be a UDP socket address");
   }
 
