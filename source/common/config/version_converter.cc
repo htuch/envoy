@@ -42,6 +42,7 @@ std::unique_ptr<Protobuf::Message> VersionConverter::downgrade(const Protobuf::M
     ENVOY_LOG_MISC(debug, "HTD previous desc found");
     std::unique_ptr<Protobuf::Message> prev_message;
     prev_message.reset(dmf.GetPrototype(prev_desc)->New());
+    ENVOY_LOG_MISC(debug, "HTD previous message allocated");
     std::string s;
     next_message.SerializeToString(&s);
     // TODO: should clear unknown fields
