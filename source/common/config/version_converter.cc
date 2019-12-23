@@ -31,7 +31,7 @@ constexpr uint32_t DeprecatedMessageFieldNumber = 100000;
 void VersionConverter::upgrade(const Protobuf::Message& prev_message,
                                Protobuf::Message& next_message) {
   std::string s;
-  prev_message.SerializeToString(s);
+  prev_message.SerializeToString(&s);
   next_message.ParseFromString(s);
 #if 0
   // Wow, why so complicated? Could we just do this conversion with:
