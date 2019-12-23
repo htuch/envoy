@@ -529,6 +529,7 @@ public:
       ASSERT(earlier_message != nullptr);
       MessageUtil::loadFromYaml(yaml, *earlier_message,
                                 ProtobufMessage::getStrictValidationVisitor());
+      ENVOY_LOG_MISC(debug, "HTD loadFromYaml earlier message {}", earlier_message->DebugString());
       Config::VersionConverter::upgrade(*earlier_message, message);
     }
   }

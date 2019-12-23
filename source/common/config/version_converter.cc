@@ -30,6 +30,10 @@ constexpr uint32_t DeprecatedMessageFieldNumber = 100000;
 
 void VersionConverter::upgrade(const Protobuf::Message& prev_message,
                                Protobuf::Message& next_message) {
+  std::string s;
+  prev_message.SerializeToString(s);
+  next_message.ParseFromString(s);
+#if 0
   // Wow, why so complicated? Could we just do this conversion with:
   //
   //   next_message.MergeFromString(prev_message.SerializeAsString())
@@ -61,14 +65,16 @@ void VersionConverter::upgrade(const Protobuf::Message& prev_message,
     Protobuf::Message* target_message = &next_message;
 
     // Does the field exist in the new version message?
-    const std::string& prev_name = prev_field_descriptor->name();
-    const auto* target_field_descriptor = next_descriptor->FindFieldByName(prev_name);
-    if (target_field_descriptor == nullptr) {
-      target_field_descriptor = next_descriptor->FindFieldByName("hidden_envoy_deprecated_" + prev_name);
-    }
+    //const std::string& prev_name = prev_field_descriptor->name();
+    //const auto* target_field_descriptor = next_descriptor->FindFieldByName(prev_name);
+    const auto* target_field_descriptor = next_descriptor->FindFieldByNumber(prev_field_descriptor->number());
+    //if (target_field_descriptor == nullptr) {
+    //  target_field_descriptor = next_descriptor->FindFieldByName("hidden_envoy_deprecated_" + prev_name);
+    //}
     // If we can't find this field in the next version, it must be deprecated.
     // So, use deprecated_message and its reflection instead.
     if (target_field_descriptor == nullptr) {
+      ASSERT(false);
       ASSERT(prev_field_descriptor->options().deprecated());
       if (!deprecated_message) {
         deprecated_message.reset(dmf.GetPrototype(prev_message.GetDescriptor())->New());
@@ -80,6 +86,7 @@ void VersionConverter::upgrade(const Protobuf::Message& prev_message,
     ASSERT(target_field_descriptor != nullptr);
 
     // These properties are guaranteed by protoxform.
+    //ENVOY_LOG_MISC(debug, "HTD prev_field_descriptor {} vs {}", prev_field_descriptor->DebugString(), target_field_descriptor->DebugString());
     ASSERT(prev_field_descriptor->type() == target_field_descriptor->type());
     ASSERT(prev_field_descriptor->number() == target_field_descriptor->number());
     ASSERT(prev_field_descriptor->type_name() == target_field_descriptor->type_name());
@@ -129,6 +136,7 @@ void VersionConverter::upgrade(const Protobuf::Message& prev_message,
     std::string* s = unknown_field_set->AddLengthDelimited(DeprecatedMessageFieldNumber);
     deprecated_message->SerializeToString(s);
   }
+#endif
 }
 
 void VersionConverter::unpackDeprecated(const Protobuf::Message& upgraded_message,
