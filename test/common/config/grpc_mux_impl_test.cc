@@ -265,8 +265,8 @@ TEST_F(GrpcMuxImplTest, WildcardWatch) {
             Invoke([&load_assignment](const Protobuf::RepeatedPtrField<ProtobufWkt::Any>& resources,
                                       const std::string&) {
               EXPECT_EQ(1, resources.size());
-              envoy::api::v3alpha::ClusterLoadAssignment expected_assignment;
-              resources[0].UnpackTo(&expected_assignment);
+              envoy::api::v3alpha::ClusterLoadAssignment expected_assignment =
+                  MessageUtil::anyConvert<envoy::api::v3alpha::ClusterLoadAssignment>(resources[0]);
               ENVOY_LOG_MISC(debug, "HTD expected {}", expected_assignment.DebugString());
               ENVOY_LOG_MISC(debug, "HTD original {}", load_assignment.DebugString());
               EXPECT_TRUE(TestUtility::protoEqual(expected_assignment, load_assignment));
