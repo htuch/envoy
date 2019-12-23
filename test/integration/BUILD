@@ -528,6 +528,7 @@ envoy_cc_test_library(
         "//test/test_common:test_time_system_interface",
         "//test/test_common:utility_lib",
         "@envoy_api//envoy/admin/v3alpha:pkg_cc_proto",
+        "@envoy_api//envoy/api/v2:pkg_cc_proto",
         "@envoy_api//envoy/api/v3alpha:pkg_cc_proto",
         "@envoy_api//envoy/api/v3alpha/auth:pkg_cc_proto",
         "@envoy_api//envoy/api/v3alpha/core:pkg_cc_proto",

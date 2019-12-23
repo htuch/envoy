@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include "envoy/api/v2/discovery.pb.h"
 #include "envoy/api/v3alpha/discovery.pb.h"
 #include "envoy/api/v3alpha/endpoint/endpoint.pb.h"
 #include "envoy/server/process_context.h"
@@ -271,7 +272,7 @@ public:
   template <class T>
   void sendSotwDiscoveryResponse(const std::string& type_url, const std::vector<T>& messages,
                                  const std::string& version) {
-    envoy::api::v3alpha::DiscoveryResponse discovery_response;
+    envoy::api::v2::DiscoveryResponse discovery_response;
     discovery_response.set_version_info(version);
     discovery_response.set_type_url(type_url);
     for (const auto& message : messages) {
@@ -293,7 +294,7 @@ public:
                                   const std::vector<T>& added_or_updated,
                                   const std::vector<std::string>& removed,
                                   const std::string& version, FakeStreamPtr& stream) {
-    envoy::api::v3alpha::DeltaDiscoveryResponse response;
+    envoy::api::v2::DeltaDiscoveryResponse response;
     response.set_system_version_info("system_version_info_this_is_a_test");
     response.set_type_url(type_url);
     for (const auto& message : added_or_updated) {
