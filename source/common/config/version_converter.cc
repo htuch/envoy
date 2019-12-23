@@ -41,7 +41,8 @@ std::unique_ptr<Protobuf::Message> VersionConverter::downgrade(const Protobuf::M
         Protobuf::DescriptorPool::generated_pool()->FindMessageTypeByName(previous_target_type);
     ENVOY_LOG_MISC(debug, "HTD previous desc found");
     std::unique_ptr<Protobuf::Message> prev_message;
-    prev_message.reset(dmf.GetPrototype(prev_desc)->New());
+    //prev_message.reset(dmf.GetPrototype(prev_desc)->New());
+    prev_message.reset(prev_desc->New());
     ENVOY_LOG_MISC(debug, "HTD previous message allocated");
     std::string s;
     next_message.SerializeToString(&s);
