@@ -45,8 +45,10 @@ std::unique_ptr<Protobuf::Message> VersionConverter::downgrade(const Protobuf::M
     ENVOY_LOG_MISC(debug, "HTD previous message allocated");
     std::string s;
     next_message.SerializeToString(&s);
+    ENVOY_LOG_MISC(debug, "HTD next messsage serialized");
     // TODO: should clear unknown fields
     prev_message->ParseFromString(s);
+    ENVOY_LOG_MISC(debug, "HTD prev messsage deserialized");
     return prev_message;
   }
   // Unnecessary copy..

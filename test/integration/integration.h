@@ -277,7 +277,8 @@ public:
     discovery_response.set_version_info(version);
     discovery_response.set_type_url(type_url);
     for (const auto& message : messages) {
-      discovery_response.add_resources()->PackFrom(*Config::VersionConverter::downgrade(message));
+      auto downgraded = Config::VersionConverter::downgrade(message);
+      discovery_response.add_resources()->PackFrom(*downgraded);
     }
     static int next_nonce_counter = 0;
     discovery_response.set_nonce(absl::StrCat("nonce", next_nonce_counter++));
@@ -299,12 +300,13 @@ public:
     response.set_system_version_info("system_version_info_this_is_a_test");
     response.set_type_url(type_url);
     for (const auto& message : added_or_updated) {
+      auto downgraded = Config::VersionConverter::downgrade(message);
       auto* resource = response.add_resources();
       ProtobufWkt::Any temp_any;
-      temp_any.PackFrom(*Config::VersionConverter::downgrade(message));
+      temp_any.PackFrom(*downgraded);
       resource->set_name(TestUtility::xdsResourceName(temp_any));
       resource->set_version(version);
-      resource->mutable_resource()->PackFrom(message);
+      resource->mutable_resource()->PackFrom(*downgraded);
     }
     *response.mutable_removed_resources() = {removed.begin(), removed.end()};
     static int next_nonce_counter = 0;
