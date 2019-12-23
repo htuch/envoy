@@ -32,21 +32,25 @@ constexpr uint32_t DeprecatedMessageFieldNumber = 100000;
 
 std::unique_ptr<Protobuf::Message> VersionConverter::downgrade(const Protobuf::Message& next_message) {
   const Protobuf::Descriptor* desc = next_message.GetDescriptor();
+  Protobuf::DynamicMessageFactory dmf;
   if (desc->options().HasExtension(udpa::annotations::versioning)) {
     const std::string& previous_target_type =
         desc->options().GetExtension(udpa::annotations::versioning).previous_message_type();
     const Protobuf::Descriptor* prev_desc =
         Protobuf::DescriptorPool::generated_pool()->FindMessageTypeByName(previous_target_type);
-    Protobuf::DynamicMessageFactory dmf;
     std::unique_ptr<Protobuf::Message> prev_message;
     prev_message.reset(dmf.GetPrototype(prev_desc)->New());
     std::string s;
     next_message.SerializeToString(&s);
     // TODO: should clear unknown fields
     prev_message->ParseFromString(s);
-    return std::move(prev_message);
+    return prev_message;
   }
-  return std::make_unique<Protobuf::Message>(next_message);
+  // Unnecessary copy..
+  std::unique_ptr<Protobuf::Message> same_message;
+  same_message.reset(dmf.GetPrototype(desc)->New());
+  same_message->MergeFrom(next_message);
+  return same_message;
 }
 
 void VersionConverter::upgrade(const Protobuf::Message& prev_message,
