@@ -36,8 +36,10 @@ std::unique_ptr<Protobuf::Message> VersionConverter::downgrade(const Protobuf::M
   if (desc->options().HasExtension(udpa::annotations::versioning)) {
     const std::string& previous_target_type =
         desc->options().GetExtension(udpa::annotations::versioning).previous_message_type();
+    ENVOY_LOG_MISC(debug, "HTD previous_target_type {}", previous_target_type);
     const Protobuf::Descriptor* prev_desc =
         Protobuf::DescriptorPool::generated_pool()->FindMessageTypeByName(previous_target_type);
+    ENVOY_LOG_MISC(debug, "HTD previous desc found");
     std::unique_ptr<Protobuf::Message> prev_message;
     prev_message.reset(dmf.GetPrototype(prev_desc)->New());
     std::string s;
