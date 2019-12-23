@@ -28,6 +28,27 @@ namespace Config {
 // field, and don't reject if present.
 constexpr uint32_t DeprecatedMessageFieldNumber = 100000;
 
+Protobuf::Message VersionConverter::downgrade(const Protobuf::Message& next_message) {
+  const Protobuf::Descriptor* desc = next_message.GetDescriptor();
+  if (desc->options().HasExtension(udpa::annotations::versioning)) {
+    const std::string& previous_target_type =
+        desc->options().GetExtension(udpa::annotations::versioning).previous_message_type();
+    const Protobuf::Descriptor* prev_desc =
+        Protobuf::DescriptorPool::generated_pool()->FindMessageTypeByName(previous_target_type);
+    Protobuf::DynamicMessageFactory dmf;
+    // TODO: change interface to unique_ptr
+    std::unique_ptr<Protobuf::Message> prev_message;
+    prev_message.reset(dmf.GetPrototype(prev_desc)->New());
+    std::string s;
+    next_message.SerializeToString(&s);
+    // TODO: should clear unknown fields
+    prev_message->ParseFromString(s);
+    return;
+  }
+  // TODO: change interface to unique_ptr
+  return next_message;
+}
+
 void VersionConverter::upgrade(const Protobuf::Message& prev_message,
                                Protobuf::Message& next_message) {
   std::string s;
