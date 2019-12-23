@@ -177,7 +177,7 @@ size_t MessageUtil::hash(const Protobuf::Message& message) {
 
 namespace {
 void onExceptionTryAgainWithApiBoosting(std::function<void(Protobuf::Message&)> f,
-                                    Protbuf::Message& message) {
+                                        Protobuf::Message& message) {
   try {
     f(message);
   } catch (EnvoyException&) {
@@ -460,11 +460,15 @@ std::string MessageUtil::getJsonStringFromMessage(const Protobuf::Message& messa
 }
 
 void MessageUtil::unpackTo(const ProtobufWkt::Any& any_message, Protobuf::Message& message) {
-  if (!any_message.UnpackTo(&message)) {
-    throw EnvoyException(fmt::format("Unable to unpack as {}: {}",
-                                     message.GetDescriptor()->full_name(),
-                                     any_message.DebugString()));
-  }
+  onExceptionTryAgainWithApiBoosting(
+      [&any_message](Protobuf::Message& message) {
+        if (!any_message.UnpackTo(&message)) {
+          throw EnvoyException(fmt::format("Unable to unpack as {}: {}",
+                                           message.GetDescriptor()->full_name(),
+                                           any_message.DebugString()));
+        }
+      },
+      message);
 }
 
 void MessageUtil::jsonConvert(const Protobuf::Message& source, ProtobufWkt::Struct& dest) {
