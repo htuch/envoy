@@ -8,6 +8,8 @@
 
 #include "common/common/assert.h"
 #include "common/common/fmt.h"
+#include "common/config/api_type_oracle.h"
+#include "common/config/version_converter.h"
 #include "common/protobuf/message_validator_impl.h"
 #include "common/protobuf/protobuf.h"
 
@@ -173,40 +175,66 @@ size_t MessageUtil::hash(const Protobuf::Message& message) {
   return HashUtil::xxHash64(text_format);
 }
 
+namespace {
+void onExceptionTryAgainWithApiBoosting(std::function<void(Protobuf::Message&)> f,
+                                    Protbuf::Message& message) {
+  try {
+    f(message);
+  } catch (EnvoyException&) {
+    const Protobuf::Descriptor* earlier_version_desc =
+        Config::ApiTypeOracle::inferEarlierVersionDescriptor("", {},
+                                                             message.GetDescriptor()->full_name());
+    if (earlier_version_desc == nullptr) {
+      throw;
+    }
+    Protobuf::DynamicMessageFactory dmf;
+    auto earlier_message = ProtobufTypes::MessagePtr(dmf.GetPrototype(earlier_version_desc)->New());
+    ASSERT(earlier_message != nullptr);
+    f(*earlier_message);
+    Config::VersionConverter::upgrade(*earlier_message, message);
+  }
+}
+
+} // namespace
+
 void MessageUtil::loadFromJson(const std::string& json, Protobuf::Message& message,
                                ProtobufMessage::ValidationVisitor& validation_visitor) {
-  Protobuf::util::JsonParseOptions options;
-  options.case_insensitive_enum_parsing = true;
-  // Let's first try and get a clean parse when checking for unknown fields;
-  // this should be the common case.
-  options.ignore_unknown_fields = false;
-  const auto strict_status = Protobuf::util::JsonStringToMessage(json, &message, options);
-  if (strict_status.ok()) {
-    // Success, no need to do any extra work.
-    return;
-  }
-  // If we fail, we see if we get a clean parse when allowing unknown fields.
-  // This is essentially a workaround
-  // for https://github.com/protocolbuffers/protobuf/issues/5967.
-  // TODO(htuch): clean this up when protobuf supports JSON/YAML unknown field
-  // detection directly.
-  options.ignore_unknown_fields = true;
-  const auto relaxed_status = Protobuf::util::JsonStringToMessage(json, &message, options);
-  // If we still fail with relaxed unknown field checking, the error has nothing
-  // to do with unknown fields.
-  if (!relaxed_status.ok()) {
-    throw EnvoyException("Unable to parse JSON as proto (" + relaxed_status.ToString() +
-                         "): " + json);
-  }
-  // We know it's an unknown field at this point.
-  validation_visitor.onUnknownField("type " + message.GetTypeName() + " reason " +
-                                    strict_status.ToString());
+  onExceptionTryAgainWithApiBoosting(
+      [&json, &validation_visitor](Protobuf::Message& message) {
+        Protobuf::util::JsonParseOptions options;
+        options.case_insensitive_enum_parsing = true;
+        // Let's first try and get a clean parse when checking for unknown fields;
+        // this should be the common case.
+        options.ignore_unknown_fields = false;
+        const auto strict_status = Protobuf::util::JsonStringToMessage(json, &message, options);
+        if (strict_status.ok()) {
+          // Success, no need to do any extra work.
+          return;
+        }
+        // If we fail, we see if we get a clean parse when allowing unknown fields.
+        // This is essentially a workaround
+        // for https://github.com/protocolbuffers/protobuf/issues/5967.
+        // TODO(htuch): clean this up when protobuf supports JSON/YAML unknown field
+        // detection directly.
+        options.ignore_unknown_fields = true;
+        const auto relaxed_status = Protobuf::util::JsonStringToMessage(json, &message, options);
+        // If we still fail with relaxed unknown field checking, the error has nothing
+        // to do with unknown fields.
+        if (!relaxed_status.ok()) {
+          throw EnvoyException("Unable to parse JSON as proto (" + relaxed_status.ToString() +
+                               "): " + json);
+        }
+        // We know it's an unknown field at this point.
+        validation_visitor.onUnknownField("type " + message.GetTypeName() + " reason " +
+                                          strict_status.ToString());
+      },
+      message);
 }
 
 void MessageUtil::loadFromJson(const std::string& json, ProtobufWkt::Struct& message) {
   // No need to validate if converting to a Struct, since there are no unknown
   // fields possible.
-  return loadFromJson(json, message, ProtobufMessage::getNullValidationVisitor());
+  loadFromJson(json, message, ProtobufMessage::getNullValidationVisitor());
 }
 
 void MessageUtil::loadFromYaml(const std::string& yaml, Protobuf::Message& message,
