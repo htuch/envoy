@@ -229,6 +229,7 @@ InstanceUtil::BootstrapVersion InstanceUtil::loadBootstrapConfig(
                          "should be non-empty");
   }
 
+  ENVOY_LOG_MISC(debug, "HTD A");
   if (!config_path.empty()) {
     MessageUtil::loadFromFile(config_path, bootstrap, validation_visitor, api);
   }
@@ -237,10 +238,12 @@ InstanceUtil::BootstrapVersion InstanceUtil::loadBootstrapConfig(
     MessageUtil::loadFromYaml(config_yaml, bootstrap_override, validation_visitor);
     bootstrap.MergeFrom(bootstrap_override);
   }
+  ENVOY_LOG_MISC(debug, "HTD B");
   if (config_proto.ByteSize() != 0) {
     bootstrap.MergeFrom(config_proto);
   }
   MessageUtil::validate(bootstrap, validation_visitor);
+  ENVOY_LOG_MISC(debug, "HTD C");
   return BootstrapVersion::V2;
 }
 
