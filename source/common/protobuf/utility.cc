@@ -177,8 +177,7 @@ size_t MessageUtil::hash(const Protobuf::Message& message) {
 }
 
 namespace {
-void tryWithApiBoosting(std::function<void(Protobuf::Message&)> f,
-                                        Protobuf::Message& message) {
+void tryWithApiBoosting(std::function<void(Protobuf::Message&)> f, Protobuf::Message& message) {
   std::cerr << "HTD oetap a\n";
   const Protobuf::Descriptor* earlier_version_desc =
       Config::ApiTypeOracle::inferEarlierVersionDescriptor("", {},
@@ -191,12 +190,21 @@ void tryWithApiBoosting(std::function<void(Protobuf::Message&)> f,
   Protobuf::DynamicMessageFactory dmf;
   auto earlier_message = ProtobufTypes::MessagePtr(dmf.GetPrototype(earlier_version_desc)->New());
   ASSERT(earlier_message != nullptr);
-  std::cerr << "HTD oetap try again with " << earlier_message->GetDescriptor()->full_name() << "\n";
+  std::cerr << "HTD oetap try with " << earlier_message->GetDescriptor()->full_name() << "\n";
   try {
     f(*earlier_message);
     Config::VersionConverter::upgrade(*earlier_message, message);
   } catch (EnvoyException&) {
-    f(message);
+    std::cerr << "HTD oetap try with " << message.GetDescriptor()->full_name() << "\n";
+    bool newer_error = false;
+    try {
+      f(message);
+    } catch (EnvoyException&) {
+      newer_error = true;
+    }
+    if (newer_error) {
+      throw;
+    }
   }
 }
 
@@ -284,7 +292,7 @@ void MessageUtil::loadFromFile(const std::string& path, Protobuf::Message& messa
                          message.GetTypeName() + ")");
   }
   if (absl::EndsWith(path, FileExtensions::get().Yaml)) {
-  std::cerr << "HTD lfy call\n";
+    std::cerr << "HTD lfy call\n";
     loadFromYaml(contents, message, validation_visitor);
   } else {
     loadFromJson(contents, message, validation_visitor);
