@@ -535,7 +535,7 @@ public:
   }
 
   static void loadFromFile(const std::string& path, Protobuf::Message& message, Api::Api& api) {
-    return MessageUtil::loadFromFile(path, message, ProtobufMessage::getStrictValidationVisitor(),
+    MessageUtil::loadFromFile(path, message, ProtobufMessage::getStrictValidationVisitor(),
                                      api);
   }
 
@@ -545,19 +545,13 @@ public:
   }
 
   template <class MessageType>
-  static void loadFromFileAndValidate(const std::string& path, MessageType& message) {
-    return MessageUtil::loadFromFileAndValidate(path, message,
-                                                ProtobufMessage::getStrictValidationVisitor());
-  }
-
-  template <class MessageType>
   static void loadFromYamlAndValidate(const std::string& yaml, MessageType& message) {
-    return MessageUtil::loadFromYamlAndValidate(yaml, message,
+    MessageUtil::loadFromYamlAndValidate(yaml, message,
                                                 ProtobufMessage::getStrictValidationVisitor());
   }
 
   template <class MessageType> static void validate(const MessageType& message) {
-    return MessageUtil::validate(message, ProtobufMessage::getStrictValidationVisitor());
+    MessageUtil::validate(message, ProtobufMessage::getStrictValidationVisitor());
   }
 
   template <class MessageType>
