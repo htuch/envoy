@@ -1,7 +1,5 @@
 #include "common/config/api_type_oracle.h"
 
-#include "common/protobuf/utility.h"
-
 #include "udpa/annotations/versioning.pb.h"
 #include "udpa/type/v1/typed_struct.pb.h"
 
@@ -30,6 +28,11 @@ ApiTypeOracle::inferEarlierVersionDescriptor(absl::string_view extension_name,
   udpa::type::v1::TypedStruct typed_struct;
   if (type == udpa::type::v1::TypedStruct::default_instance().GetDescriptor()->full_name()) {
     MessageUtil::unpackTo(typed_config, typed_struct);
+    if (!type_config.UnpackTo(&typed_struct)) {
+      throw EnvoyException(fmt::format("Unable to unpack as {}: {}",
+                                       type_struct.GetDescriptor()->full_name(),
+                                       type_config.DebugString()));
+    }
     type = TypeUtil::typeUrlToDescriptorFullName(typed_struct.type_url());
     ENVOY_LOG_MISC(trace, "Extracted embedded type {}", type);
   }
@@ -40,7 +43,7 @@ ApiTypeOracle::inferEarlierVersionDescriptor(absl::string_view extension_name,
     auto it = v2ApiTypeMap().find(extension_name);
     if (it == v2ApiTypeMap().end()) {
       ENVOY_LOG_MISC(trace, "Missing v2 API type map");
-      //return nullptr;
+      // return nullptr;
     } else {
       type = it->second;
     }
