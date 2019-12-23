@@ -108,6 +108,7 @@ void jsonConvertInternal(const Protobuf::Message& source,
     throw EnvoyException(fmt::format("Unable to convert protobuf message to JSON string: {} {}",
                                      status.ToString(), source.DebugString()));
   }
+  std::cerr << "HTD jCI 2\n";
   MessageUtil::loadFromJson(json, dest, validation_visitor);
 }
 
@@ -181,15 +182,18 @@ void onExceptionTryAgainWithApiBoosting(std::function<void(Protobuf::Message&)> 
   try {
     f(message);
   } catch (EnvoyException&) {
+    std::cerr << "HTD oetap a\n";
     const Protobuf::Descriptor* earlier_version_desc =
         Config::ApiTypeOracle::inferEarlierVersionDescriptor("", {},
                                                              message.GetDescriptor()->full_name());
     if (earlier_version_desc == nullptr) {
+    std::cerr << "HTD oetap b\n";
       throw;
     }
     Protobuf::DynamicMessageFactory dmf;
     auto earlier_message = ProtobufTypes::MessagePtr(dmf.GetPrototype(earlier_version_desc)->New());
     ASSERT(earlier_message != nullptr);
+    std::cerr << "HTD oetap try again with " << earlier_message->GetDescriptor()->full_name() << "\n";
     f(*earlier_message);
     Config::VersionConverter::upgrade(*earlier_message, message);
   }
@@ -199,6 +203,7 @@ void onExceptionTryAgainWithApiBoosting(std::function<void(Protobuf::Message&)> 
 
 void MessageUtil::loadFromJson(const std::string& json, Protobuf::Message& message,
                                ProtobufMessage::ValidationVisitor& validation_visitor) {
+  std::cerr << "HTD lfj\n";
   onExceptionTryAgainWithApiBoosting(
       [&json, &validation_visitor](Protobuf::Message& message) {
         Protobuf::util::JsonParseOptions options;
@@ -258,6 +263,7 @@ void MessageUtil::loadFromFile(const std::string& path, Protobuf::Message& messa
                                ProtobufMessage::ValidationVisitor& validation_visitor,
                                Api::Api& api) {
   const std::string contents = api.fileSystem().fileReadToEnd(path);
+  std::cerr << "HTD lff: " << contents << "\n";
   // If the filename ends with .pb, attempt to parse it as a binary proto.
   if (absl::EndsWith(path, FileExtensions::get().ProtoBinary)) {
     // Attempt to parse the binary format.
@@ -277,6 +283,7 @@ void MessageUtil::loadFromFile(const std::string& path, Protobuf::Message& messa
                          message.GetTypeName() + ")");
   }
   if (absl::EndsWith(path, FileExtensions::get().Yaml)) {
+  std::cerr << "HTD lfy call\n";
     loadFromYaml(contents, message, validation_visitor);
   } else {
     loadFromJson(contents, message, validation_visitor);

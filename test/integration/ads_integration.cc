@@ -90,7 +90,7 @@ envoy::api::v3alpha::Listener AdsIntegrationTest::buildListener(const std::strin
         filters:
         - name: envoy.http_connection_manager
           typed_config:
-            "@type": type.googleapis.com/envoy.config.filter.network.http_connection_manager.v3alpha.HttpConnectionManager
+            "@type": type.googleapis.com/envoy.config.filter.network.http_connection_manager.v2.HttpConnectionManager
             stat_prefix: {}
             codec_type: HTTP2
             rds:

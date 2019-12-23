@@ -9,7 +9,7 @@ static_resources:
     - filters:
       - name: envoy.http_connection_manager
         typed_config:
-          "@type": type.googleapis.com/envoy.config.filter.network.http_connection_manager.v3alpha.HttpConnectionManager
+          "@type": type.googleapis.com/envoy.config.filter.network.http_connection_manager.v2.HttpConnectionManager
           drain_timeout: 5s
           route_config:
             virtual_hosts:

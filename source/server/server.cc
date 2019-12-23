@@ -229,21 +229,22 @@ InstanceUtil::BootstrapVersion InstanceUtil::loadBootstrapConfig(
                          "should be non-empty");
   }
 
-  ENVOY_LOG_MISC(debug, "HTD A");
+  std::cerr << "HTD a\n";
   if (!config_path.empty()) {
     MessageUtil::loadFromFile(config_path, bootstrap, validation_visitor, api);
   }
+  std::cerr << "HTD a.2\n";
   if (!config_yaml.empty()) {
     envoy::config::bootstrap::v3alpha::Bootstrap bootstrap_override;
     MessageUtil::loadFromYaml(config_yaml, bootstrap_override, validation_visitor);
     bootstrap.MergeFrom(bootstrap_override);
   }
-  ENVOY_LOG_MISC(debug, "HTD B");
+  std::cerr << "HTD b\n";
   if (config_proto.ByteSize() != 0) {
     bootstrap.MergeFrom(config_proto);
   }
   MessageUtil::validate(bootstrap, validation_visitor);
-  ENVOY_LOG_MISC(debug, "HTD C");
+  std::cerr << "HTD c\n";
   return BootstrapVersion::V2;
 }
 

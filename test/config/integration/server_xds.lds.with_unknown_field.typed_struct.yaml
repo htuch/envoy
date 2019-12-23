@@ -11,7 +11,7 @@ resources:
     - name: envoy.http_connection_manager
       typed_config:
         "@type": type.googleapis.com/udpa.type.v1.TypedStruct
-        type_url: "type.googleapis.com/envoy.config.filter.network.http_connection_manager.v3alpha.HttpConnectionManager"
+        type_url: "type.googleapis.com/envoy.config.filter.network.http_connection_manager.v2.HttpConnectionManager"
         value:
           codec_type: HTTP2
           drain_timeout: 5s
