@@ -101,7 +101,7 @@ const std::string ConfigHelper::HTTP_PROXY_CONFIG = BASE_CONFIG + R"EOF(
       filters:
         name: envoy.http_connection_manager
         typed_config:
-          "@type": type.googleapis.com/envoy.config.filter.network.http_connection_manager.v2.HttpConnectionManager
+          "@type": type.googleapis.com/envoy.config.filter.network.http_connection_manager.v3alpha.HttpConnectionManager
           stat_prefix: config_test
           http_filters:
             name: envoy.router
@@ -135,7 +135,7 @@ const std::string ConfigHelper::QUIC_HTTP_PROXY_CONFIG = BASE_UDP_LISTENER_CONFI
       filters:
         name: envoy.http_connection_manager
         typed_config:
-          "@type": type.googleapis.com/envoy.config.filter.network.http_connection_manager.v2.HttpConnectionManager
+          "@type": type.googleapis.com/envoy.config.filter.network.http_connection_manager.v3alpha.HttpConnectionManager
           stat_prefix: config_test
           http_filters:
             name: envoy.router
@@ -245,7 +245,7 @@ static_resources:
       filters:
         name: envoy.http_connection_manager
         typed_config:
-          "@type": type.googleapis.com/envoy.config.filter.network.http_connection_manager.v2.HttpConnectionManager
+          "@type": type.googleapis.com/envoy.config.filter.network.http_connection_manager.v3alpha.HttpConnectionManager
           stat_prefix: config_test
           http_filters:
             name: envoy.router
