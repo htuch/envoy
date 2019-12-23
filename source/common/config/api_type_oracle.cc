@@ -1,5 +1,8 @@
 #include "common/config/api_type_oracle.h"
 
+#include "common/common/logger.h"
+
+#include "absl/container/flat_hash_map.h"
 #include "udpa/annotations/versioning.pb.h"
 #include "udpa/type/v1/typed_struct.pb.h"
 
