@@ -340,6 +340,7 @@ envoy_cc_library(
     deps = [
         "//source/common/common:assert_lib",
         "//source/common/protobuf",
+        "@com_github_cncf_udpa//udpa/annotations:pkg_cc_proto",
     ],
 )
 

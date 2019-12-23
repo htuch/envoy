@@ -1,5 +1,7 @@
 #include "common/config/version_converter.h"
 
+#include "udpa/annotations/versioning.pb.h"
+
 #include "common/common/assert.h"
 
 // Protobuf reflection is on a per-scalar type basis, i.e. there are method to
@@ -43,7 +45,7 @@ Protobuf::Message VersionConverter::downgrade(const Protobuf::Message& next_mess
     next_message.SerializeToString(&s);
     // TODO: should clear unknown fields
     prev_message->ParseFromString(s);
-    return;
+    return *prev_message;
   }
   // TODO: change interface to unique_ptr
   return next_message;
