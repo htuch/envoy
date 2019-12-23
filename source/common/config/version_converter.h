@@ -23,6 +23,9 @@ public:
    */
   static void upgrade(const Protobuf::Message& prev_message, Protobuf::Message& next_message);
 
+  // Downgrade as far back as we can go.
+  static Protobuf::Message downgrade(const Protobuf::Message& next_message);
+
   /**
    * Access the deprecated fields stored in the UnknownFieldSet of a message
    * generated via VersionConverter::upgrade().
