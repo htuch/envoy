@@ -137,6 +137,7 @@ envoy_cc_library(
         "//source/common/router:route_config_update_impl_lib",
         "@envoy_api//envoy/api/v3alpha:pkg_cc_proto",
         "@envoy_api//envoy/api/v3alpha/core:pkg_cc_proto",
+        "@envoy_api//envoy/api/v2/route:pkg_cc_proto",
         "@envoy_api//envoy/api/v3alpha/route:pkg_cc_proto",
     ],
 )
