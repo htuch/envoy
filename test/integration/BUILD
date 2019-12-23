@@ -821,6 +821,7 @@ envoy_cc_test(
         "@envoy_api//envoy/api/v3alpha/core:pkg_cc_proto",
         "@envoy_api//envoy/config/accesslog/v3alpha:pkg_cc_proto",
         "@envoy_api//envoy/config/bootstrap/v3alpha:pkg_cc_proto",
+        "@envoy_api//envoy/config/filter/network/tcp_proxy/v2:pkg_cc_proto",
         "@envoy_api//envoy/config/filter/network/tcp_proxy/v3alpha:pkg_cc_proto",
     ],
 )
