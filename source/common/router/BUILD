@@ -169,6 +169,7 @@ envoy_cc_library(
         "//source/common/router:route_config_update_impl_lib",
         "//source/common/router:vhds_lib",
         "@envoy_api//envoy/admin/v3alpha:pkg_cc_proto",
+        "@envoy_api//envoy/api/v2:pkg_cc_proto",
         "@envoy_api//envoy/api/v3alpha:pkg_cc_proto",
         "@envoy_api//envoy/config/filter/network/http_connection_manager/v3alpha:pkg_cc_proto",
     ],
