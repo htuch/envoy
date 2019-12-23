@@ -177,25 +177,26 @@ size_t MessageUtil::hash(const Protobuf::Message& message) {
 }
 
 namespace {
-void onExceptionTryAgainWithApiBoosting(std::function<void(Protobuf::Message&)> f,
+void tryWithApiBoosting(std::function<void(Protobuf::Message&)> f,
                                         Protobuf::Message& message) {
-  try {
-    f(message);
-  } catch (EnvoyException&) {
-    std::cerr << "HTD oetap a\n";
-    const Protobuf::Descriptor* earlier_version_desc =
-        Config::ApiTypeOracle::inferEarlierVersionDescriptor("", {},
-                                                             message.GetDescriptor()->full_name());
-    if (earlier_version_desc == nullptr) {
+  std::cerr << "HTD oetap a\n";
+  const Protobuf::Descriptor* earlier_version_desc =
+      Config::ApiTypeOracle::inferEarlierVersionDescriptor("", {},
+                                                           message.GetDescriptor()->full_name());
+  if (earlier_version_desc == nullptr) {
     std::cerr << "HTD oetap b\n";
-      throw;
-    }
-    Protobuf::DynamicMessageFactory dmf;
-    auto earlier_message = ProtobufTypes::MessagePtr(dmf.GetPrototype(earlier_version_desc)->New());
-    ASSERT(earlier_message != nullptr);
-    std::cerr << "HTD oetap try again with " << earlier_message->GetDescriptor()->full_name() << "\n";
+    f(message);
+    return;
+  }
+  Protobuf::DynamicMessageFactory dmf;
+  auto earlier_message = ProtobufTypes::MessagePtr(dmf.GetPrototype(earlier_version_desc)->New());
+  ASSERT(earlier_message != nullptr);
+  std::cerr << "HTD oetap try again with " << earlier_message->GetDescriptor()->full_name() << "\n";
+  try {
     f(*earlier_message);
     Config::VersionConverter::upgrade(*earlier_message, message);
+  } catch (EnvoyException&) {
+    f(message);
   }
 }
 
@@ -204,7 +205,7 @@ void onExceptionTryAgainWithApiBoosting(std::function<void(Protobuf::Message&)> 
 void MessageUtil::loadFromJson(const std::string& json, Protobuf::Message& message,
                                ProtobufMessage::ValidationVisitor& validation_visitor) {
   std::cerr << "HTD lfj\n";
-  onExceptionTryAgainWithApiBoosting(
+  tryWithApiBoosting(
       [&json, &validation_visitor](Protobuf::Message& message) {
         Protobuf::util::JsonParseOptions options;
         options.case_insensitive_enum_parsing = true;
@@ -467,7 +468,7 @@ std::string MessageUtil::getJsonStringFromMessage(const Protobuf::Message& messa
 }
 
 void MessageUtil::unpackTo(const ProtobufWkt::Any& any_message, Protobuf::Message& message) {
-  onExceptionTryAgainWithApiBoosting(
+  tryWithApiBoosting(
       [&any_message](Protobuf::Message& message) {
         if (!any_message.UnpackTo(&message)) {
           throw EnvoyException(fmt::format("Unable to unpack as {}: {}",
