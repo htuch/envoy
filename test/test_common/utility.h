@@ -16,6 +16,8 @@
 #include "envoy/type/v3alpha/percent.pb.h"
 
 #include "common/buffer/buffer_impl.h"
+#include "common/config/api_type_oracle.h"
+#include "common/config/version_converter.h"
 #include "common/common/c_smart_ptr.h"
 #include "common/common/thread.h"
 #include "common/http/header_map_impl.h"
@@ -498,15 +500,37 @@ public:
 
   // Strict variants of Protobuf::MessageUtil
   static void loadFromJson(const std::string& json, Protobuf::Message& message) {
-    return MessageUtil::loadFromJson(json, message, ProtobufMessage::getStrictValidationVisitor());
+    MessageUtil::loadFromJson(json, message, ProtobufMessage::getStrictValidationVisitor());
   }
 
   static void loadFromJson(const std::string& json, ProtobufWkt::Struct& message) {
-    return MessageUtil::loadFromJson(json, message);
+    MessageUtil::loadFromJson(json, message);
   }
 
   static void loadFromYaml(const std::string& yaml, Protobuf::Message& message) {
-    return MessageUtil::loadFromYaml(yaml, message, ProtobufMessage::getStrictValidationVisitor());
+    try {
+      ENVOY_LOG_MISC(debug, "HTD loadromYaml A");
+      MessageUtil::loadFromYaml(yaml, message, ProtobufMessage::getStrictValidationVisitor());
+      ENVOY_LOG_MISC(debug, "HTD loadromYaml B");
+      // TODO(htuch): this should be narrowed to UnknownProtoFieldException
+    } catch (EnvoyException&) {
+      ENVOY_LOG_MISC(debug, "HTD loadromYaml C");
+      const Protobuf::Descriptor* earlier_version_desc =
+          Config::ApiTypeOracle::inferEarlierVersionDescriptor(
+              "", {}, message.GetDescriptor()->full_name());
+      if (earlier_version_desc == nullptr) {
+      ENVOY_LOG_MISC(debug, "HTD loadromYaml D");
+        throw;
+      }
+      ENVOY_LOG_MISC(debug, "HTD loadromYaml E");
+      Protobuf::DynamicMessageFactory dmf;
+      auto earlier_message =
+          ProtobufTypes::MessagePtr(dmf.GetPrototype(earlier_version_desc)->New());
+      ASSERT(earlier_message != nullptr);
+      MessageUtil::loadFromYaml(yaml, *earlier_message,
+                                ProtobufMessage::getStrictValidationVisitor());
+      Config::VersionConverter::upgrade(*earlier_message, message);
+    }
   }
 
   static void loadFromFile(const std::string& path, Protobuf::Message& message, Api::Api& api) {

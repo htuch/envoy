@@ -63,6 +63,9 @@ void VersionConverter::upgrade(const Protobuf::Message& prev_message,
     // Does the field exist in the new version message?
     const std::string& prev_name = prev_field_descriptor->name();
     const auto* target_field_descriptor = next_descriptor->FindFieldByName(prev_name);
+    if (target_field_descriptor == nullptr) {
+      target_field_descriptor = next_descriptor->FindFieldByName("hidden_envoy_deprecated_" + prev_name);
+    }
     // If we can't find this field in the next version, it must be deprecated.
     // So, use deprecated_message and its reflection instead.
     if (target_field_descriptor == nullptr) {

@@ -40,9 +40,10 @@ ApiTypeOracle::inferEarlierVersionDescriptor(absl::string_view extension_name,
     auto it = v2ApiTypeMap().find(extension_name);
     if (it == v2ApiTypeMap().end()) {
       ENVOY_LOG_MISC(trace, "Missing v2 API type map");
-      return nullptr;
+      //return nullptr;
+    } else {
+      type = it->second;
     }
-    type = it->second;
   }
 
   // Determine if there is an earlier API version for target_type.
