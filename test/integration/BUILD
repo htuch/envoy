@@ -219,6 +219,7 @@ envoy_cc_test(
         ":http_integration_lib",
         "//source/common/protobuf",
         "//test/test_common:utility_lib",
+        "@envoy_api//envoy/api/v2:pkg_cc_proto",
         "@envoy_api//envoy/api/v3alpha:pkg_cc_proto",
         "@envoy_api//envoy/api/v3alpha/core:pkg_cc_proto",
         "@envoy_api//envoy/config/bootstrap/v3alpha:pkg_cc_proto",
