@@ -30,9 +30,10 @@ namespace Config {
 // field, and don't reject if present.
 constexpr uint32_t DeprecatedMessageFieldNumber = 100000;
 
-std::unique_ptr<Protobuf::Message> VersionConverter::downgrade(const Protobuf::Message& next_message) {
+std::unique_ptr<Protobuf::Message> VersionConverter::downgrade(
+    Protobuf::DynamicMessageFactory& dmf,
+    const Protobuf::Message& next_message) {
   const Protobuf::Descriptor* desc = next_message.GetDescriptor();
-  Protobuf::DynamicMessageFactory dmf;
   if (desc->options().HasExtension(udpa::annotations::versioning)) {
     const std::string& previous_target_type =
         desc->options().GetExtension(udpa::annotations::versioning).previous_message_type();
@@ -41,8 +42,7 @@ std::unique_ptr<Protobuf::Message> VersionConverter::downgrade(const Protobuf::M
         Protobuf::DescriptorPool::generated_pool()->FindMessageTypeByName(previous_target_type);
     ENVOY_LOG_MISC(debug, "HTD previous desc found");
     std::unique_ptr<Protobuf::Message> prev_message;
-    //prev_message.reset(dmf.GetPrototype(prev_desc)->New());
-    prev_message.reset(prev_desc->New());
+    prev_message.reset(dmf.GetPrototype(prev_desc)->New());
     ENVOY_LOG_MISC(debug, "HTD previous message allocated");
     std::string s;
     next_message.SerializeToString(&s);

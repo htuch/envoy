@@ -276,8 +276,9 @@ public:
     envoy::api::v2::DiscoveryResponse discovery_response;
     discovery_response.set_version_info(version);
     discovery_response.set_type_url(type_url);
+    Protobuf::DynamicMessageFactory dmf;
     for (const auto& message : messages) {
-      auto downgraded = Config::VersionConverter::downgrade(message);
+      auto downgraded = Config::VersionConverter::downgrade(dmf, message);
       discovery_response.add_resources()->PackFrom(*downgraded);
     }
     static int next_nonce_counter = 0;
@@ -299,8 +300,9 @@ public:
     envoy::api::v2::DeltaDiscoveryResponse response;
     response.set_system_version_info("system_version_info_this_is_a_test");
     response.set_type_url(type_url);
+    Protobuf::DynamicMessageFactory dmf;
     for (const auto& message : added_or_updated) {
-      auto downgraded = Config::VersionConverter::downgrade(message);
+      auto downgraded = Config::VersionConverter::downgrade(dmf, message);
       auto* resource = response.add_resources();
       ProtobufWkt::Any temp_any;
       temp_any.PackFrom(*downgraded);
