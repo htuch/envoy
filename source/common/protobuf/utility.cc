@@ -272,7 +272,7 @@ void MessageUtil::loadFromFile(const std::string& path, Protobuf::Message& messa
                                ProtobufMessage::ValidationVisitor& validation_visitor,
                                Api::Api& api) {
   const std::string contents = api.fileSystem().fileReadToEnd(path);
-  std::cerr << "HTD lff: " << contents << "\n";
+  //std::cerr << "HTD lff: " << contents << "\n";
   // If the filename ends with .pb, attempt to parse it as a binary proto.
   if (absl::EndsWith(path, FileExtensions::get().ProtoBinary)) {
     // Attempt to parse the binary format.
