@@ -114,6 +114,13 @@ envoy_cc_test(
 )
 
 envoy_cc_test(
+    name = "host_overhead_test",
+    deps = [
+        "//source/common/memory:stats_lib",
+    ],
+)
+
+envoy_cc_test(
     name = "host_stats_test",
     srcs = ["host_stats_test.cc"],
     deps = [
