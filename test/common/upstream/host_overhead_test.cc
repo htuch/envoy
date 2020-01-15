@@ -26,7 +26,14 @@ TEST(HostOverheadTest, All) {
   const double hosts_overhead = measurePerHostOverhead([](Cluster& cluster) {
     cluster.add_hosts();
   });
-  ENVOY_LOG_MISC(debug, "hosts() overhead per host: {}", hosts_overhead);
+  const double load_assignment_overhead = measurePerHostOverhead([](Cluster& cluster) {
+    if (cluster.load_assignment().endpoints().empty()) {
+      cluster.mutable_load_assignment()->add_endpoints();
+    }
+    cluster.mutable_load_assignment()->mutable_endpoints(0)->add_lb_endpoints();
+  });
+  ENVOY_LOG_MISC(debug, "hosts overhead per host: {}", hosts_overhead);
+  ENVOY_LOG_MISC(debug, "load_assignment overhead per host: {}", load_assignment_overhead);
 }
 
 } // namespace
