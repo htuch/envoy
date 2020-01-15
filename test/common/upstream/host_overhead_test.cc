@@ -7,15 +7,26 @@
 namespace Envoy {
 namespace {
 
-TEST(HostOverheadTest, All) { 
-  const uint32_t HostCount = 100000;
+using envoy::config::cluster::v3alpha::Cluster;
+
+const uint32_t HostCount = 100000;
+
+double measurePerHostOverhead(std::function<void(Cluster&)> mutate_fn) {
+  Cluster cluster;
   Stats::TestUtil::MemoryTest memory_test;
-  envoy::config::cluster::v3alpha::Cluster cluster;
-  ENVOY_LOG_MISC(debug, "HTD {}", memory_test.consumedBytes());
+  const size_t start_bytes = memory_test.consumedBytes();
   for (uint32_t i=0; i < HostCount; ++i) {
-    cluster.add_hosts();
+    mutate_fn(cluster);
   }
-  ENVOY_LOG_MISC(debug, "HTD {}", memory_test.consumedBytes());
+  const size_t consumed_bytes = memory_test.consumedBytes() - start_bytes;
+  return (1.0 * consumed_bytes) / HostCount;
+}
+
+TEST(HostOverheadTest, All) { 
+  const double hosts_overhead = measurePerHostOverhead([](Cluster& cluster) {
+    cluster.add_hosts();
+  });
+  ENVOY_LOG_MISC(debug, "hosts() overhead per host: {}", hosts_overhead);
 }
 
 } // namespace
