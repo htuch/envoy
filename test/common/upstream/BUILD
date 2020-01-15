@@ -115,8 +115,10 @@ envoy_cc_test(
 
 envoy_cc_test(
     name = "host_overhead_test",
+    srcs = ["host_overhead_test.cc"],
     deps = [
-        "//source/common/memory:stats_lib",
+        "//test/common/stats:stat_test_utility_lib",
+        "@envoy_api//envoy/config/cluster/v3alpha:pkg_cc_proto",
     ],
 )
 
