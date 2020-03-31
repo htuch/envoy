@@ -146,6 +146,7 @@ envoy_cmake_external(
         "EVENT__DISABLE_REGRESS": "on",
         "EVENT__DISABLE_TESTS": "on",
         "EVENT__LIBRARY_TYPE": "STATIC",
+        "EVENT__ENABLE_VERBOSE_DEBUG": "on",
         # Force _GNU_SOURCE on for Android builds. This would be contained in
         # a 'select' but the downstream macro uses a select on all of these
         # options, and they cannot be nested.

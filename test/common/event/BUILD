@@ -36,3 +36,9 @@ envoy_cc_test(
         "//test/test_common:utility_lib",
     ],
 )
+
+envoy_cc_test(
+    name = "event_test",
+    srcs = ["event_test.cc"],
+    external_deps = ["event"],
+)
