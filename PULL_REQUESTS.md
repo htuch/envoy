@@ -2,7 +2,7 @@ When creating an Envoy pull request (PR) the text box will automatically be fill
 in with the basic fields from the [pull request template](PULL_REQUEST_TEMPLATE.md). The following
 is a more detailed explanation of what should go in each field.
 
-| WARNING: do not submit PRs for crashes or security issues unless previously discussed with envoy-security@googlegroups.com |
+| :bangbang: WARNING: do not submit PRs for crashes or security issues unless previously discussed with envoy-security@googlegroups.com |
 | --- |
 
 ### <a name="title"></a>Title
