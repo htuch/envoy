@@ -4,6 +4,10 @@
 
 # api
 /api/ @envoyproxy/api-shepherds
+# documentation
+/docs/ @mattklein123 @phlax
+# examples
+/examples/ @phlax
 # access loggers
 /*/extensions/access_loggers/common @auni53 @zuercher
 /*/extensions/access_loggers/open_telemetry @itamarkam @yanavlasov
@@ -183,3 +187,4 @@ extensions/filters/http/oauth2 @rgs1 @derekargueta @snowp
 /*/extensions/filters/common/ext_authz @esmet @gsagula @dio
 /*/extensions/filters/http/ext_authz @esmet @gsagula @dio
 /*/extensions/filters/network/ext_authz @esmet @gsagula @dio
+/tools/ @phlax @htuch
