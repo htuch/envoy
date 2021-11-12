@@ -2,15 +2,7 @@
 
 #include "source/common/common/logger.h"
 
-#ifdef __cplusplus
-extern "C"{
-#endif 
-
 #include "ubpf.h"
-
-#ifdef __cplusplus
-}
-#endif
 
 namespace Envoy {
 namespace Extensions {
