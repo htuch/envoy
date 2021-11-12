@@ -21,7 +21,7 @@ Filter::Filter(Api::Api& api) {
 }
 
 Http::FilterHeadersStatus Filter::decodeHeaders(Http::RequestHeaderMap& /*headers*/,
-                                                bool /*end_stream*/) override {
+                                                bool /*end_stream*/) {
   uint64_t bpf_ret_value = 0;
   const int ret = ubpf_exec(vm_, nullptr, 0, &bpf_ret_value);
   RELEASE_ASSERT(ret == 0, "uBPF exec failure");
@@ -30,7 +30,7 @@ Http::FilterHeadersStatus Filter::decodeHeaders(Http::RequestHeaderMap& /*header
   return Http::FilterHeadersStatus::Continue;
 }
 
-void Filter::onDestroy() override {
+void Filter::onDestroy() {
   ubpf_destroy(vm_);
   ENVOY_LOG_MISC(debug, "ubpf: VM destroyed");
 }
