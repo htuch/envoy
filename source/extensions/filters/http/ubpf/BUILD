@@ -11,7 +11,7 @@ envoy_extension_package()
 
 envoy_cc_library(
     name = "ubpf_filter_lib",
-    #srcs = ["ubpf_filter.cc"],
+    srcs = ["ubpf_filter.cc"],
     hdrs = ["ubpf_filter.h"],
     deps = [
         "//external:ubpf",
