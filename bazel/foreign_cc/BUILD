@@ -68,6 +68,7 @@ cc_library(
 
 make(
     name = "ubpf",
+    args = ["-C vm"],
     lib_source = "@com_github_iovisor_ubpf//:all",
 )
 
