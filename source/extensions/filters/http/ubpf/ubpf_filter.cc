@@ -1,6 +1,4 @@
-#pragma once
-
-#include "source/extensions/filters/http/ubpf_filter.h"
+#include "source/extensions/filters/http/ubpf/ubpf_filter.h"
 
 namespace Envoy {
 namespace Extensions {
