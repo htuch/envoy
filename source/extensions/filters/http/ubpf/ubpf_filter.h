@@ -2,6 +2,8 @@
 
 #include "envoy/http/filter.h"
 
+#include "ubpf.h"
+
 namespace Envoy {
 namespace Extensions {
 namespace HttpFilters {
@@ -11,12 +13,9 @@ class Filter : public Http::StreamDecoderFilter {
 public:
   Filter(Api::Api& api);
 
-  void onDestroy() override {}
-
-  Http::FilterHeadersStatus decodeHeaders(Http::RequestHeaderMap& /*headers*/,
-                                          bool /*end_stream*/) override {
-    return Http::FilterHeadersStatus::Continue;
-  }
+  void onDestroy() override;
+  Http::FilterHeadersStatus decodeHeaders(Http::RequestHeaderMap& headers,
+                                          bool end_stream) override;
 
   Http::FilterDataStatus decodeData(Buffer::Instance& /*data*/, bool /*end_stream*/) override {
     return Http::FilterDataStatus::Continue;
@@ -26,6 +25,9 @@ public:
   }
   void setDecoderFilterCallbacks(Http::StreamDecoderFilterCallbacks& /*callbacks*/) override {
   }
+
+private:
+  ubpf_vm* vm_{};
 };
 
 } // namespace Ubpf
