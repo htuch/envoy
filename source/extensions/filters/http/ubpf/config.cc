@@ -1,4 +1,4 @@
-#include "external/ubpf/foo.h"
+#include "ubpf.h"
 #include "source/extensions/filters/http/lua/config.h"
 
 #include "envoy/extensions/filters/http/lua/v3/lua.pb.h"
