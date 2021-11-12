@@ -9,18 +9,18 @@ licenses(["notice"])  # Apache 2
 
 envoy_extension_package()
 
-#envoy_cc_library(
-#    name = "ubpf_filter_lib",
-#    srcs = ["ubpf_filter.cc"],
-#    hdrs = ["ubpf_filter.h"],
-#)
+envoy_cc_library(
+    name = "ubpf_filter_lib",
+    #srcs = ["ubpf_filter.cc"],
+    hdrs = ["ubpf_filter.h"],
+)
 
 envoy_cc_extension(
     name = "config",
     srcs = ["config.cc"],
     hdrs = ["config.h"],
     deps = [
-        #":ubpf_filter_lib",
+        ":ubpf_filter_lib",
         "//envoy/registry",
         "//external:ubpf",
         "//source/extensions/filters/http/common:factory_base_lib",
