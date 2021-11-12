@@ -68,7 +68,7 @@ cc_library(
 
 make(
     name = "ubpf",
-    lib_source = "@com_github_ubpf//:all",
+    lib_source = "@com_github_iovisor_ubpf//:all",
 )
 
 configure_make(

@@ -3,7 +3,6 @@ load(
     "envoy_cc_extension",
     "envoy_cc_library",
     "envoy_extension_package",
-    "envoy_external_dep_path",
 )
 
 licenses(["notice"])  # Apache 2
@@ -23,8 +22,8 @@ envoy_cc_extension(
     deps = [
         #":ubpf_filter_lib",
         "//envoy/registry",
+        "//external:ubpf",
         "//source/extensions/filters/http/common:factory_base_lib",
         "@envoy_api//envoy/extensions/filters/http/ubpf/v3:pkg_cc_proto",
-        envoy_external_dep_path("ubpf"),
     ],
 )

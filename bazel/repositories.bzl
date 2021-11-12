@@ -194,6 +194,7 @@ def envoy_dependencies(skip_targets = []):
     _com_github_jbeder_yaml_cpp()
     _com_github_libevent_libevent()
     _com_github_luajit_luajit()
+    _com_github_iovisor_ubpf()
     _com_github_moonjit_moonjit()
     _com_github_nghttp2_nghttp2()
     _com_github_skyapm_cpp2sky()
@@ -967,6 +968,17 @@ def _com_github_luajit_luajit():
     native.bind(
         name = "luajit",
         actual = "@envoy//bazel/foreign_cc:luajit",
+    )
+
+def _com_github_iovisor_ubpf():
+    external_http_archive(
+        name = "com_github_ubpf",
+        build_file_content = BUILD_ALL_CONTENT,
+    )
+
+    native.bind(
+        name = "ubpf",
+        actual = "@envoy//bazel/foreign_cc:ubpf",
     )
 
 def _com_github_moonjit_moonjit():

@@ -733,7 +733,7 @@ REPOSITORY_LOCATIONS_SPEC = dict(
         ],
         cpe = "cpe:2.3:a:llvm:*:*",
     ),
-    com_github_ubpf = dict(
+    com_github_iovisor_ubpf = dict(
         project_name = "ubpf",
         project_desc = "Userspace eBPF VM",
         project_url = "https://github.com/iovisor/ubpf",
