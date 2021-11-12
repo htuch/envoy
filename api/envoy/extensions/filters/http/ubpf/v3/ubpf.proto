@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package envoy.extensions.filters.http.ubpf.v3;
 
+import "envoy/config/core/v3/base.proto";
+
 import "udpa/annotations/status.proto";
 
 option java_package = "io.envoyproxy.envoy.extensions.filters.http.ubpf.v3";
@@ -13,4 +15,5 @@ option (udpa.annotations.file_status).package_version_status = ACTIVE;
 // [#extension: envoy.filters.http.ubpf]
 
 message Ubpf {
+  config.core.v3.DataSource bpf_code = 1;
 }
