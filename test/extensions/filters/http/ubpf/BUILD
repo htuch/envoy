@@ -17,7 +17,6 @@ envoy_extension_cc_test(
     extension_names = ["envoy.filters.http.ubpf"],
     deps = [
         "//source/extensions/filters/http/ubpf:ubpf_filter_lib",
-        "//test/mocks/api:api_mocks",
         "//test/test_common:utility_lib",
     ],
 )

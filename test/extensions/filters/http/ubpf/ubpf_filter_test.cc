@@ -1,12 +1,10 @@
 #include "source/extensions/filters/http/ubpf/ubpf_filter.h"
 
-#include "test/mocks/api/mocks.h"
 #include "test/test_common/utility.h"
 
 #include "gmock/gmock.h"
 
 using testing::InSequence;
-using testing::NiceMock;
 
 namespace Envoy {
 namespace Extensions {
@@ -16,17 +14,17 @@ namespace {
 
 class UbpfHttpFilterTest : public testing::Test {
 public:
-  UbpfHttpFilterTest() {}
+  UbpfHttpFilterTest() : api_(Api::createApiForTest()) {}
 
   ~UbpfHttpFilterTest() override { filter_->onDestroy(); }
 
   // Quickly set up a global configuration. In order to avoid extensive modification of existing
   // test cases, the existing configuration methods must be compatible.
   void setup(const std::string& path) {
-    filter_ = std::make_unique<Filter>(api_, path);
+    filter_ = std::make_unique<Filter>(*api_, path);
   }
 
-  NiceMock<Api::MockApi> api_;
+  Api::ApiPtr api_;
   std::unique_ptr<Filter> filter_;
 };
 
