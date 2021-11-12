@@ -1,10 +1,12 @@
-#include "source/extensions/filters/http/ubpf/lua_filter.h"
+#include "source/extensions/filters/http/ubpf/ubpf_filter.h"
 
 #include "test/mocks/api/mocks.h"
+#include "test/test_common/utility.h"
 
 #include "gmock/gmock.h"
 
 using testing::InSequence;
+using testing::NiceMock;
 
 namespace Envoy {
 namespace Extensions {
