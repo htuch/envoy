@@ -70,7 +70,7 @@ make(
     name = "ubpf",
     args = ["-C vm"],
     copts = ["-fPIC"],
-    linkopts = ["-fPIC"],
+    linkopts = ["-fPIC", "-Wl,-z,notext"],
     targets = ["libubpf.a", "install"],
     out_static_libs = ["libubpf.a"],
     lib_source = "@com_github_iovisor_ubpf//:all",

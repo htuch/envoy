@@ -1,3 +1,16 @@
+diff --git a/vm/Makefile b/vm/Makefile
+index ee45188..5e554ab 100644
+--- a/vm/Makefile
++++ b/vm/Makefile
+@@ -12,7 +12,7 @@
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ 
+-CFLAGS := -Wall -Werror -Iinc -O2 -g -Wunused-parameter
++CFLAGS := -Wall -Werror -Iinc -O2 -g -Wunused-parameter -fPIC
+ LDLIBS := -lm
+ 
+ INSTALL ?= install
 diff --git a/vm/inc/ubpf.h b/vm/inc/ubpf.h
 index 17d6fd3..0b9257e 100644
 --- a/vm/inc/ubpf.h
