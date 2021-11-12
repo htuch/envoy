@@ -1,5 +1,5 @@
 #include "ubpf.h"
-#include "source/extensions/filters/http/lua/config.h"
+#include "source/extensions/filters/http/ubpf/config.h"
 
 #include "envoy/extensions/filters/http/lua/v3/lua.pb.h"
 #include "envoy/extensions/filters/http/lua/v3/lua.pb.validate.h"
