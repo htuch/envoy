@@ -1,19 +1,15 @@
 #include "ubpf.h"
 #include "source/extensions/filters/http/ubpf/config.h"
 
-#include "envoy/extensions/filters/http/lua/v3/lua.pb.h"
-#include "envoy/extensions/filters/http/lua/v3/lua.pb.validate.h"
 #include "envoy/registry/registry.h"
-
-#include "source/extensions/filters/http/lua/lua_filter.h"
 
 namespace Envoy {
 namespace Extensions {
 namespace HttpFilters {
-namespace Lua {
+namespace Ubpf {
 
-Http::FilterFactoryCb LuaFilterConfig::createFilterFactoryFromProtoTyped(
-    const envoy::extensions::filters::http::lua::v3::Lua& proto_config, const std::string&,
+Http::FilterFactoryCb UbpfFilterConfig::createFilterFactoryFromProtoTyped(
+    const envoy::extensions::filters::http::ubpf::v3::Ubpf& proto_config, const std::string&,
     Server::Configuration::FactoryContext& context) {
   FilterConfigConstSharedPtr filter_config(new FilterConfig{
       proto_config, context.threadLocal(), context.clusterManager(), context.api()});
@@ -23,19 +19,12 @@ Http::FilterFactoryCb LuaFilterConfig::createFilterFactoryFromProtoTyped(
   };
 }
 
-Router::RouteSpecificFilterConfigConstSharedPtr
-LuaFilterConfig::createRouteSpecificFilterConfigTyped(
-    const envoy::extensions::filters::http::lua::v3::LuaPerRoute& proto_config,
-    Server::Configuration::ServerFactoryContext& context, ProtobufMessage::ValidationVisitor&) {
-  return std::make_shared<FilterConfigPerRoute>(proto_config, context);
-}
-
 /**
- * Static registration for the Lua filter. @see RegisterFactory.
+ * Static registration for the Ubpf filter. @see RegisterFactory.
  */
-REGISTER_FACTORY(LuaFilterConfig, Server::Configuration::NamedHttpFilterConfigFactory){"envoy.lua"};
+REGISTER_FACTORY(UbpfFilterConfig, Server::Configuration::NamedHttpFilterConfigFactory){"envoy.ubpf"};
 
-} // namespace Lua
+} // namespace Ubpf
 } // namespace HttpFilters
 } // namespace Extensions
 } // namespace Envoy
