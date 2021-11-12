@@ -14,9 +14,9 @@ namespace Ubpf {
 Http::FilterFactoryCb UbpfFilterConfig::createFilterFactoryFromProtoTyped(
     const envoy::extensions::filters::http::ubpf::v3::Ubpf& proto_config, const std::string&,
     Server::Configuration::FactoryContext& context) {
-  return [&proto_config, &context](Http::FilterChainFactoryCallbacks& callbacks) -> void {
-    callbacks.addStreamDecoderFilter(
-        std::make_shared<Filter>(context.api(), proto_config.filename()));
+  return [path = proto_config.bpf_code().filename(),
+          &context](Http::FilterChainFactoryCallbacks& callbacks) -> void {
+    callbacks.addStreamDecoderFilter(std::make_shared<Filter>(context.api(), path));
   };
 }
 

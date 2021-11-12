@@ -10,7 +10,7 @@ namespace Ubpf {
 Filter::Filter(Api::Api& api, const std::string& path) {
   ENVOY_LOG_MISC(debug, "ubpf: init");
   vm_ = ubpf_create();
-  ENVOY_LOG_MISC(debug, "ubpf: VM created");
+  ENVOY_LOG_MISC(debug, "ubpf: loading BPF code from '{}'", path);
 
   const std::string elf_contents = api.fileSystem().fileReadToEnd(path);
   ENVOY_LOG_MISC(debug, "ubpf: ELF size {} bytes", elf_contents.size());
