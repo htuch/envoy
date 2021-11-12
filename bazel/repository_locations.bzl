@@ -1095,14 +1095,14 @@ REPOSITORY_LOCATIONS_SPEC = dict(
         project_desc = "Compile eBPF programs with Bazel",
         project_url = "https://github.com/jackhumphries/bazel-ebpf",
         version = "5b5f0d8e1491f66d1ca4ed6b331e5900ebe264a4",
-        sha256 = "d087851b76204935f7f23c172eb0d136c09720b8484d8151019523652ce77004",
-        strip_prefix = "bazel_ebpf-{version}",
+        sha256 = "0e406a3c5ee49343cd144819b0b7987fe502c30ef8f73d3bed9a8d7c1404d7ac",
+        strip_prefix = "bazel-ebpf-{version}",
         urls = ["https://github.com/jackhumphries/bazel-ebpf/archive/{version}.tar.gz"],
         use_category = ["dataplane_ext"],
         extensions = ["envoy.ubpf.runtime.ubpf"],
         release_date = "2021-11-21",
         cpe = "N/A",
-    )
+    ),
     rules_antlr = dict(
         project_name = "ANTLR Rules for Bazel",
         project_desc = "Bazel rules for ANTLR",
