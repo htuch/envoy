@@ -9,7 +9,7 @@ namespace Ubpf {
 
 class Filter : public Http::StreamDecoderFilter {
 public:
-  Filter();
+  Filter(Api::Api& api);
 
   void onDestroy() override {}
 
