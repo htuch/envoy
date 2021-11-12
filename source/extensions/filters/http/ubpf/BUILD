@@ -16,6 +16,7 @@ envoy_cc_library(
     deps = [
         "//external:ubpf",
         "//envoy/http:filter_interface",
+        "//source/common/common:logger_lib",
     ],
 )
 
