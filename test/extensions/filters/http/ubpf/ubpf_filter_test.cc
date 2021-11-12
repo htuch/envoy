@@ -1,5 +1,6 @@
 #include "source/extensions/filters/http/ubpf/ubpf_filter.h"
 
+#include "test/test_common/environment.h"
 #include "test/test_common/utility.h"
 
 #include "gmock/gmock.h"
@@ -21,7 +22,7 @@ public:
   // Quickly set up a global configuration. In order to avoid extensive modification of existing
   // test cases, the existing configuration methods must be compatible.
   void setup(const std::string& path) {
-    filter_ = std::make_unique<Filter>(*api_, path);
+    filter_ = std::make_unique<Filter>(*api_, + TestEnvironment::runfilesPath("test/extensions/filters/http/ubpf/testdata/" + path));
   }
 
   Api::ApiPtr api_;
