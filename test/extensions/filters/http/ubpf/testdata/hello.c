@@ -3,7 +3,7 @@ static int idouble(int a) {
 }
 
 int bpf_prog(void *ctx) {
-        int a = 1;
+        int a = 2;
         a = idouble(a);
 
         return (a);
