@@ -14,6 +14,9 @@ envoy_package()
 envoy_extension_cc_test(
     name = "ubpf_filter_test",
     srcs = ["ubpf_filter_test.cc"],
+    data = [
+        "//test/extensions/filters/http/ubpf/testdata:hello.o",
+    ],
     extension_names = ["envoy.filters.http.ubpf"],
     deps = [
         "//source/extensions/filters/http/ubpf:ubpf_filter_lib",

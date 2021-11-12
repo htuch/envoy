@@ -971,6 +971,7 @@ def _com_github_luajit_luajit():
     )
 
 def _com_github_iovisor_ubpf():
+    external_http_archive("rules_ebpf")
     external_http_archive(
         name = "com_github_iovisor_ubpf",
         build_file_content = BUILD_ALL_CONTENT,
