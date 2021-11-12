@@ -104,6 +104,7 @@ EXTENSIONS = {
     "envoy.filters.http.router":                        "//source/extensions/filters/http/router:config",
     "envoy.filters.http.set_metadata":                  "//source/extensions/filters/http/set_metadata:config",
     "envoy.filters.http.tap":                           "//source/extensions/filters/http/tap:config",
+    "envoy.filters.http.ubpf":                          "//source/extensions/filters/http/ubpf:config",
     "envoy.filters.http.wasm":                          "//source/extensions/filters/http/wasm:config",
 
     #

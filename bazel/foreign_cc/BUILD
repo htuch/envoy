@@ -1,6 +1,6 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load("//bazel:envoy_build_system.bzl", "envoy_cmake", "envoy_package")
-load("@rules_foreign_cc//foreign_cc:configure.bzl", "configure_make")
+load("@rules_foreign_cc//foreign_cc:configure.bzl", "configure_make", "make")
 
 licenses(["notice"])  # Apache 2
 
@@ -63,6 +63,11 @@ cc_library(
     deps = [
         "librdkafka_build",
     ],
+)
+
+make(
+    name = "ubpf",
+    lib_source = "@com_github_ubpf//:all",
 )
 
 configure_make(
