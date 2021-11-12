@@ -35,6 +35,7 @@ static_resources:
           - name: envoy.ubpf
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.filters.http.ubpf.v3.Ubpf
+              bpf_code: { filename: "hello.o" }
           - name: envoy.filters.http.router
   clusters:
   - name: service_envoyproxy_io

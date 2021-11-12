@@ -11,7 +11,7 @@ namespace Ubpf {
 
 class Filter : public Http::StreamDecoderFilter {
 public:
-  Filter(Api::Api& api);
+  Filter(Api::Api& api, const std::string& path);
 
   void onDestroy() override;
   Http::FilterHeadersStatus decodeHeaders(Http::RequestHeaderMap& headers,

@@ -7,12 +7,12 @@ namespace Extensions {
 namespace HttpFilters {
 namespace Ubpf {
 
-Filter::Filter(Api::Api& api) {
+Filter::Filter(Api::Api& api, const std::string& path) {
   ENVOY_LOG_MISC(debug, "ubpf: init");
   vm_ = ubpf_create();
   ENVOY_LOG_MISC(debug, "ubpf: VM created");
 
-  const std::string elf_contents = api.fileSystem().fileReadToEnd("hello.o");
+  const std::string elf_contents = api.fileSystem().fileReadToEnd(path);
   ENVOY_LOG_MISC(debug, "ubpf: ELF size {} bytes", elf_contents.size());
 
   char* err = nullptr;

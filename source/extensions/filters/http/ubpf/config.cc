@@ -12,17 +12,19 @@ namespace HttpFilters {
 namespace Ubpf {
 
 Http::FilterFactoryCb UbpfFilterConfig::createFilterFactoryFromProtoTyped(
-    const envoy::extensions::filters::http::ubpf::v3::Ubpf& /*proto_config*/, const std::string&,
+    const envoy::extensions::filters::http::ubpf::v3::Ubpf& proto_config, const std::string&,
     Server::Configuration::FactoryContext& context) {
-  return [&context](Http::FilterChainFactoryCallbacks& callbacks) -> void {
-    callbacks.addStreamDecoderFilter(std::make_shared<Filter>(context.api()));
+  return [&proto_config, &context](Http::FilterChainFactoryCallbacks& callbacks) -> void {
+    callbacks.addStreamDecoderFilter(
+        std::make_shared<Filter>(context.api(), proto_config.filename()));
   };
 }
 
 /**
  * Static registration for the Ubpf filter. @see RegisterFactory.
  */
-REGISTER_FACTORY(UbpfFilterConfig, Server::Configuration::NamedHttpFilterConfigFactory){"envoy.ubpf"};
+REGISTER_FACTORY(UbpfFilterConfig,
+                 Server::Configuration::NamedHttpFilterConfigFactory){"envoy.ubpf"};
 
 } // namespace Ubpf
 } // namespace HttpFilters
