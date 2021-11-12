@@ -1,7 +1,10 @@
-#include "ubpf.h"
 #include "source/extensions/filters/http/ubpf/config.h"
 
 #include "envoy/registry/registry.h"
+
+#include "source/extensions/filters/http/ubpf/ubpf_filter.h"
+
+#include "ubpf.h"
 
 namespace Envoy {
 namespace Extensions {
@@ -11,11 +14,8 @@ namespace Ubpf {
 Http::FilterFactoryCb UbpfFilterConfig::createFilterFactoryFromProtoTyped(
     const envoy::extensions::filters::http::ubpf::v3::Ubpf& proto_config, const std::string&,
     Server::Configuration::FactoryContext& context) {
-  FilterConfigConstSharedPtr filter_config(new FilterConfig{
-      proto_config, context.threadLocal(), context.clusterManager(), context.api()});
-  auto& time_source = context.mainThreadDispatcher().timeSource();
-  return [filter_config, &time_source](Http::FilterChainFactoryCallbacks& callbacks) -> void {
-    callbacks.addStreamFilter(std::make_shared<Filter>(filter_config, time_source));
+  return [](Http::FilterChainFactoryCallbacks& callbacks) -> void {
+    callbacks.addStreamFilter(std::make_shared<Filter>());
   };
 }
 
