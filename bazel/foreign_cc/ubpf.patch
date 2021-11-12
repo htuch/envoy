@@ -1,0 +1,24 @@
+diff --git a/vm/inc/ubpf.h b/vm/inc/ubpf.h
+index 17d6fd3..0b9257e 100644
+--- a/vm/inc/ubpf.h
++++ b/vm/inc/ubpf.h
+@@ -34,6 +34,10 @@
+ struct ubpf_vm;
+ typedef uint64_t (*ubpf_jit_fn)(void *mem, size_t mem_len);
+ 
++#ifdef  __cplusplus
++extern "C" {
++#endif
++
+ struct ubpf_vm *ubpf_create(void);
+ void ubpf_destroy(struct ubpf_vm *vm);
+ 
+@@ -134,4 +138,8 @@ int ubpf_translate(struct ubpf_vm *vm, uint8_t *buffer, size_t *size, char **err
+  */
+ int ubpf_set_unwind_function_index(struct ubpf_vm *vm, unsigned int idx);
+ 
++#ifdef __cplusplus
++}
++#endif
++
+ #endif
