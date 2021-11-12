@@ -1,21 +1,21 @@
 #pragma once
 
-#include "envoy/extensions/filters/http/lua/v3/lua.pb.h"
-#include "envoy/extensions/filters/http/lua/v3/lua.pb.validate.h"
+#include "envoy/extensions/filters/http/lua/v3/ubpf.pb.h"
+#include "envoy/extensions/filters/http/lua/v3/ubpf.pb.validate.h"
 
 #include "source/extensions/filters/http/common/factory_base.h"
 
 namespace Envoy {
 namespace Extensions {
 namespace HttpFilters {
-namespace Lua {
+namespace Ubpf {
 
 /**
- * Config registration for the Lua filter. @see NamedHttpFilterConfigFactory.
+ * Config registration for the uBPF filter. @see NamedHttpFilterConfigFactory.
  */
-class LuaFilterConfig
-    : public Common::FactoryBase<envoy::extensions::filters::http::lua::v3::Lua,
-                                 envoy::extensions::filters::http::lua::v3::LuaPerRoute> {
+class UbpfFilterConfig
+    : public Common::FactoryBase<envoy::extensions::filters::http::ubpf::v3::Ubpf,
+                                 envoy::extensions::filters::http::ubpf::v3::UbpfPerRoute> {
 public:
   LuaFilterConfig() : FactoryBase("envoy.filters.http.lua") {}
 
