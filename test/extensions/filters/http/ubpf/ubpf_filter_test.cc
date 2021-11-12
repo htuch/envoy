@@ -22,7 +22,8 @@ public:
   // Quickly set up a global configuration. In order to avoid extensive modification of existing
   // test cases, the existing configuration methods must be compatible.
   void setup(const std::string& path) {
-    filter_ = std::make_unique<Filter>(*api_, + TestEnvironment::runfilesPath("test/extensions/filters/http/ubpf/testdata/" + path));
+    filter_ = std::make_unique<Filter>(
+        *api_, TestEnvironment::runfilesPath("test/extensions/filters/http/ubpf/testdata/" + path));
   }
 
   Api::ApiPtr api_;
