@@ -69,8 +69,7 @@ cc_library(
 make(
     name = "ubpf",
     args = ["-C vm"],
-    copts = ["-fPIC"],
-    linkopts = ["-fPIC", "-Wl,-z,notext"],
+    linkopts = ["-Wl,-z,notext"],
     targets = ["libubpf.a", "install"],
     out_static_libs = ["libubpf.a"],
     lib_source = "@com_github_iovisor_ubpf//:all",
